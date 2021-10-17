@@ -1,5 +1,10 @@
-package TamadaBot;
+package Core;
 
+import Bot.BotConfiguration;
+import Bot.BotRoutine;
+import Bot.TamadaBot;
+
+import Commands.CommandParser;
 import com.google.gson.Gson;
 import java.io.File;
 import java.nio.charset.Charset;
@@ -18,14 +23,17 @@ public class Main {
         var config = deserializeBotConfig();
         var tamada = new TamadaBot(config);
 
-        var greeting = tamada.greet();
+        var routine = new BotRoutine(tamada, System.out, System.in);
+        routine.start();
+
+        /*var greeting = tamada.greet();
         System.out.println(greeting);
 
         var introduction = tamada.introduce();
         System.out.println(introduction);
 
         var anecdote = tamada.tellAnecdote();
-        System.out.println(anecdote);
+        System.out.println(anecdote);*/
     }
 
     private static BotConfiguration deserializeBotConfig() {
