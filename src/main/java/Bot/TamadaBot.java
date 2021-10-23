@@ -1,15 +1,18 @@
 package Bot;
 
+import Anecdote.IAnecdoteRepository;
 import Utils.Randomizer;
 
 public final class TamadaBot extends Bot {
 
     private final BotConfiguration _configuration;
+    private final IAnecdoteRepository _anecdotes;
 
-    private boolean awaitsAssessment = false;
+    private boolean awaitsRating = false;
 
     public TamadaBot(BotConfiguration configuration) {
         _configuration = configuration;
+        _anecdotes = _configuration.getAnecdoteRepository();
     }
 
     @Override
@@ -50,17 +53,16 @@ public final class TamadaBot extends Bot {
     @Override
     public BotMessage tellAnecdote() {
         resetState();
-        var anecdotes = _configuration.getAnecdotes();
-        var anecdote = Randomizer.getRandomElementFrom(anecdotes);
+        var anecdote = _anecdotes.getNextAnecdote();
         var starters = _configuration.getStarters();
         var starter = Randomizer.getRandomElementFrom(starters);
-        awaitsAssessment = true;
-        return buildBotMessage(starter, anecdote);
+        awaitsRating = true;
+        return buildBotMessage(starter, anecdote.getAnecdote());
     }
 
     @Override
     public BotMessage onUserLaughed() {
-        if (awaitsAssessment) {
+        if (awaitsRating) {
             var onUserLikedMessages = _configuration.getOnLikedMessages();
             resetState();
             return buildBotMessage(Randomizer.getRandomElementFrom(onUserLikedMessages));
@@ -92,7 +94,7 @@ public final class TamadaBot extends Bot {
     }
 
     private void resetState() {
-        awaitsAssessment = false;
+        awaitsRating = false;
     }
 
 }

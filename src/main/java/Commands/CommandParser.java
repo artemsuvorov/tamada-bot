@@ -14,7 +14,7 @@ public final class CommandParser {
 
         var ninput = input.trim().toLowerCase();
 
-        if (inputContainsAll(ninput, "что", "ты", "умеешь"))
+        if (inputContainsAll(ninput, "что", "умеешь"))
             return new HelpCommand(_bot);
 
         if (inputContainsAll(ninput, "кто", "ты") || ninput.contains("представься"))

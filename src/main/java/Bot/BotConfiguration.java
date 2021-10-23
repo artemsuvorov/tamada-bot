@@ -1,5 +1,8 @@
 package Bot;
 
+import Anecdote.IAnecdoteRepository;
+import Anecdote.RandomRatableAnecdoteRepository;
+
 public class BotConfiguration {
 
     private final String _name;
@@ -61,8 +64,9 @@ public class BotConfiguration {
         return _starters;
     }
 
-    public String[] getAnecdotes() {
-        return  _anecdotes;
+    public IAnecdoteRepository getAnecdoteRepository() {
+        var repository = new RandomRatableAnecdoteRepository(_anecdotes);
+        return repository;
     }
 
     public String[] getOnLikedMessages() {
