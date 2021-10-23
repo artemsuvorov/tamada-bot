@@ -11,31 +11,45 @@ public final class CommandParser {
     }
 
     public BotCommand parse(String input) {
-
         var ninput = input.trim().toLowerCase();
 
         if (inputContainsAll(ninput, "что", "умеешь"))
-            return new HelpCommand(_bot);
+            return new MessageCommand(_bot, bot -> bot.onWhatCanYouDo());
 
         if (inputContainsAll(ninput, "кто", "ты") || ninput.contains("представься"))
-            return new IntroduceCommand(_bot);
+            return new MessageCommand(_bot, bot -> bot.introduce());
 
         if (inputContainsAny(ninput, "привет", "здравствуй", "здрасте", "салют", "доброго времени суток", "хай"))
-            return new HelloCommand(_bot);
+            return new MessageCommand(_bot, bot -> bot.greet());
 
         if (inputContainsAll(ninput, "как", "дела") || inputContainsAll(ninput, "как", "ты"))
-            return new HowAreYouCommand(_bot);
+            return new MessageCommand(_bot, bot -> bot.onHowAreYou());
 
         if (inputContainsAll(ninput, "скажи", "анекдот"))
-            return new TellAnecdoteCommand(_bot);
+            return new MessageCommand(_bot, bot -> bot.tellAnecdote());
 
-        if (inputContainsAny(ninput, "хватит", "стоп"))
-            return new StopChattingCommand(_bot);
+        if (inputContainsAny(ninput, "ха", "смешно") && !ninput.contains("не"))
+            return new MessageCommand(_bot, bot -> bot.onUserLaughed());
 
-        if (inputContainsAny(ninput, "ха", "смешно") && !ninput.contains("несмешно"))
-            return new UserLaughedCommand(_bot);
+        if (inputContainsAny(ninput,"оцен"))
+            return new MessageCommand(_bot, bot -> bot.inviteToRate());
 
-        return new NotUnderstandCommand(_bot);
+        if (inputContainsAny(ninput, "нрав") && !ninput.contains("не"))
+            return new MessageCommand(_bot, bot -> bot.onLikeRating());
+
+        if (inputContainsAll(ninput, "не", "нрав"))
+            return new MessageCommand(_bot, bot -> bot.onDislikeRating());
+
+        if (inputContainsAny(ninput, "отмен"))
+            return new MessageCommand(_bot, bot -> bot.onCancelRating());
+
+        if (inputContainsAll(ninput, "избранн"))
+            return new MessageCommand(_bot, bot -> bot.showFavorites());
+
+        if (inputContainsAny(ninput, "хватит", "стоп", "пока", "до свидания"))
+            return new MessageCommand(_bot, bot -> bot.stopChatting());
+
+        return new MessageCommand(_bot, bot -> bot.notUnderstand());
     }
 
     private boolean inputContainsAny(String input, String... values) {

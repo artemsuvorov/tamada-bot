@@ -32,6 +32,16 @@ public abstract class Bot {
 
     public abstract BotMessage tellAnecdote();
 
+    public abstract BotMessage inviteToRate();
+
+    public abstract BotMessage onLikeRating();
+
+    public abstract BotMessage onDislikeRating();
+
+    public abstract BotMessage onCancelRating();
+
+    public abstract BotMessage showFavorites();
+
     public abstract BotMessage onUserLaughed();
 
     public abstract BotMessage notUnderstand();

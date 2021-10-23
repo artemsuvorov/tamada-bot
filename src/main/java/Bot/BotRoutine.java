@@ -2,7 +2,7 @@ package Bot;
 
 import Commands.BotCommand;
 import Commands.CommandParser;
-import Commands.StartConversationCommand;
+import Commands.MessageCommand;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -29,7 +29,8 @@ public final class BotRoutine {
     }
 
     public void start() {
-        executeCommand(new StartConversationCommand(_bot));
+        var startConversation = new MessageCommand(_bot, bot -> bot.onStartConversation());
+        executeCommand(startConversation);
 
         while (_bot.isChatting()) {
             var input = _scanner.nextLine();

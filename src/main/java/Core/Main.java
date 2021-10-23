@@ -23,15 +23,6 @@ public class Main {
 
         var routine = new BotRoutine(tamada, System.out, System.in);
         routine.start();
-
-        /*var greeting = tamada.greet();
-        System.out.println(greeting);
-
-        var introduction = tamada.introduce();
-        System.out.println(introduction);
-
-        var anecdote = tamada.tellAnecdote();
-        System.out.println(anecdote);*/
     }
 
     private static BotConfiguration deserializeBotConfig() {

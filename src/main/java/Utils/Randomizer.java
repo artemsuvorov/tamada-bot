@@ -10,7 +10,7 @@ public class Randomizer {
         return _random.nextInt(max);
     }
 
-    public static <T> T getRandomElementFrom(T... elements) {
+    public static <T> T getRandomElement(T... elements) {
         var randomIndex = getRandomNumber(elements.length);
         return elements[randomIndex];
     }
