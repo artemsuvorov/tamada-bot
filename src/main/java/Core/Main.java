@@ -1,4 +1,8 @@
-package TamadaBot;
+package Core;
+
+import Bot.BotConfiguration;
+import Bot.BotRoutine;
+import Bot.TamadaBot;
 
 import com.google.gson.Gson;
 import java.io.File;
@@ -14,18 +18,11 @@ public class Main {
     private static final Charset _encoding = StandardCharsets.UTF_8;
 
     public static void main(String[] args) {
-
         var config = deserializeBotConfig();
         var tamada = new TamadaBot(config);
 
-        var greeting = tamada.greet();
-        System.out.println(greeting);
-
-        var introduction = tamada.introduce();
-        System.out.println(introduction);
-
-        var anecdote = tamada.tellAnecdote();
-        System.out.println(anecdote);
+        var routine = new BotRoutine(tamada, System.out, System.in);
+        routine.start();
     }
 
     private static BotConfiguration deserializeBotConfig() {
