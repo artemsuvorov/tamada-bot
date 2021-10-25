@@ -1,5 +1,7 @@
 package Bot;
 
+import Anecdote.IRatableAnecdoteRepository;
+
 /**
  * Defines a bot abstract class that can send messages such as
  * greeting, introducing, telling anecdotes etc.
@@ -126,5 +128,8 @@ public abstract class Bot {
      * @return bot's message for the situation when the user input is unintelligible.
      */
     public abstract BotMessage notUnderstand();
+
+    // todo: delete later
+    public abstract IRatableAnecdoteRepository getAnecdoteRepository();
 
 }
