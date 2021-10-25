@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+/**
+ * Represents an anecdote repository class
+ * that returns anecdotes one by one in a random sequence.
+ */
 public class RandomAnecdoteRepository implements IAnecdoteRepository {
 
     private ArrayList<IAnecdote> _anecdotes;
@@ -24,16 +28,29 @@ public class RandomAnecdoteRepository implements IAnecdoteRepository {
         _toldAnecdotes = new ArrayList<IAnecdote>();
     }
 
+    /**
+     * Returns the count of anecdotes stored in the repository.
+     * @return the count of anecdotes stored in the repository.
+     */
     @Override
     public int getCount() {
         return _anecdotes.size() + _toldAnecdotes.size();
     }
 
+    /**
+     * Indicates if the repository is empty.
+     * @return true if the repository has at least one anecdote, otherwise false.
+     */
     @Override
     public boolean hasAnecdotes() {
         return !_anecdotes.isEmpty();
     }
 
+    /**
+     * Picks and returns random anecdote from the pool of the untold ones.
+     * When all the anecdotes from the repository are told, considers told ones as untold.
+     * @return a random anecdote from the pool of untold ones.
+     */
     @Override
     public IAnecdote getNextAnecdote() {
         if (_anecdotes.isEmpty() && _toldAnecdotes.isEmpty())
@@ -47,6 +64,10 @@ public class RandomAnecdoteRepository implements IAnecdoteRepository {
         return getRandomAnecdote();
     }
 
+    /**
+     * Returns a random anecdote and removes it from the pool of the untold ones.
+     * @return a random anecdote from the pool of untold ones.
+     */
     protected IAnecdote getRandomAnecdote() {
         var index = Randomizer.getRandomNumber(_anecdotes.size());
         var anecdote = _anecdotes.get(index);

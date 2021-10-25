@@ -8,6 +8,11 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Scanner;
 
+/**
+ * Represents a helper class that sets up the
+ * user-bot interaction loop (user's input -> parsing -> bot's output)
+ * when is given an input and an output streams.
+ */
 public final class BotRoutine {
 
     private final Bot _bot;
@@ -28,6 +33,9 @@ public final class BotRoutine {
         _commandParser = new CommandParser(_bot);
     }
 
+    /**
+     * Starts the user-bot interaction loop (user's input -> parsing -> bot's output).
+     */
     public void start() {
         var startConversation = new MessageCommand(_bot, bot -> bot.onStartConversation());
         executeCommand(startConversation);
@@ -39,6 +47,11 @@ public final class BotRoutine {
         }
     }
 
+    /**
+     * Executes the specified command and prints
+     * the resulting message to the output stream.
+     * @param command the command to be executed
+     */
     private void executeCommand(BotCommand command) {
         var message = command.execute();
         _out.println(message);

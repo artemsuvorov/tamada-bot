@@ -2,6 +2,10 @@ package Commands;
 
 import Bot.Bot;
 
+/**
+ * Represents a class that depending on the provided input
+ * can build a command for a bot.
+ */
 public final class CommandParser {
 
     private final Bot _bot;
@@ -10,6 +14,12 @@ public final class CommandParser {
         _bot = bot;
     }
 
+    /**
+     * Converts string input into command for the bot.
+     * @param input string depending on which the corresponding
+     *              command is to be generated for the bot.
+     * @return the command for the bot.
+     */
     public BotCommand parse(String input) {
         var ninput = input.trim().toLowerCase();
 
@@ -52,6 +62,13 @@ public final class CommandParser {
         return new MessageCommand(_bot, bot -> bot.notUnderstand());
     }
 
+    /**
+     * Indicates if the string contains any of the specified substrings.
+     * @param input the string in which to search for the specified substrings.
+     * @param values the substrings to be found in the specified string.
+     * @return true if the string contains any of the specified substrings,
+     * otherwise false.
+     */
     private boolean inputContainsAny(String input, String... values) {
         var result = false;
         for (var value : values) {
@@ -61,6 +78,13 @@ public final class CommandParser {
         return result;
     }
 
+    /**
+     * Indicates if the string contains all the specified substrings.
+     * @param input the string in which to search for the specified substrings.
+     * @param values the substrings to be found in the specified string.
+     * @return true if the string contains all the specified substrings,
+     * otherwise false.
+     */
     private boolean inputContainsAll(String input, String... values) {
         var result = true;
         for (var value : values) {
