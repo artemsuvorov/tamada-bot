@@ -1,5 +1,7 @@
 package Bot;
 
+import Anecdote.IRatableAnecdoteRepository;
+
 public abstract class Bot {
 
     private boolean _isChatting = true;
@@ -45,5 +47,8 @@ public abstract class Bot {
     public abstract BotMessage onUserLaughed();
 
     public abstract BotMessage notUnderstand();
+
+    // todo: delete later
+    public abstract IRatableAnecdoteRepository getAnecdoteRepository();
 
 }

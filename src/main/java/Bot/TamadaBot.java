@@ -140,6 +140,11 @@ public final class TamadaBot extends Bot {
     }
 
     @Override
+    public IRatableAnecdoteRepository getAnecdoteRepository() {
+        return _anecdoteRepository;
+    }
+
+    @Override
     public BotMessage stopChatting() {
         resetState();
         super.stopChatting();
