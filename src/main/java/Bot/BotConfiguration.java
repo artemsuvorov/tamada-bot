@@ -1,5 +1,8 @@
 package Bot;
 
+/**
+ * Represents a configuration class that stores bot's name and all its messages.
+ */
 public class BotConfiguration {
 
     public String BotName;

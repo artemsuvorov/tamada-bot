@@ -4,6 +4,10 @@ import Anecdote.*;
 import Utils.Randomizer;
 import java.util.stream.Collectors;
 
+/**
+ * Represents a Tamada bot implementation with all the bot's messages
+ * being taken from the specified bot's configuration.
+ */
 public final class TamadaBot extends Bot {
 
     private final BotConfiguration _configuration;
@@ -18,18 +22,30 @@ public final class TamadaBot extends Bot {
         _anecdoteRepository = new RandomRatableAnecdoteRepository(_configuration.Anecdotes);
     }
 
+    /**
+     * Returns bot's message for conversation start.
+     * @return bot's message for conversation start.
+     */
     @Override
     public BotMessage onStartConversation() {
         resetState();
         return buildBotMessage(_configuration.ConversationStart);
     }
 
+    /**
+     * Returns bot's message for answer on "what can you do" question.
+     * @return bot's message for answer on "what can you do" question.
+     */
     @Override
     public BotMessage onWhatCanYouDo() {
         resetState();
         return buildBotMessage(_configuration.HelpMessage);
     }
 
+    /**
+     * Returns bot's message for greeting.
+     * @return bot's message for greeting.
+     */
     @Override
     public BotMessage greet() {
         resetState();
@@ -37,6 +53,10 @@ public final class TamadaBot extends Bot {
         return buildBotMessage(Randomizer.getRandomElement(greetings));
     }
 
+    /**
+     * Returns bot's message for answer on "how are you" question.
+     * @return bot's message for answer on "how are you" question.
+     */
     @Override
     public BotMessage onHowAreYou() {
         resetState();
@@ -44,12 +64,20 @@ public final class TamadaBot extends Bot {
         return buildBotMessage(Randomizer.getRandomElement(onHowAreYouMessages));
     }
 
+    /**
+     * Returns bot's message for introduction itself.
+     * @return bot's message for introduction itself.
+     */
     @Override
     public BotMessage introduce() {
         resetState();
         return buildBotMessage(_configuration.Introduction);
     }
 
+    /**
+     * Returns the anecdote message.
+     * @return the anecdote message.
+     */
     @Override
     public BotMessage tellAnecdote() {
         resetState();
@@ -68,6 +96,10 @@ public final class TamadaBot extends Bot {
         return buildBotMessage(starter, anecdote.getAnecdote());
     }
 
+    /**
+     * Returns bot's message for the rating invitation.
+     * @return bot's message for the rating invitation.
+     */
     @Override
     public BotMessage inviteToRate() {
         if (!anecdoteIsTold) {
@@ -83,16 +115,28 @@ public final class TamadaBot extends Bot {
         return buildBotMessage(_configuration.RateAnecdoteInvitation);
     }
 
+    /**
+     * Returns bot's message for the reaction on user's like.
+     * @return bot's message for the reaction on user's like.
+     */
     @Override
     public BotMessage onLikeRating() {
         return rateLastAnecdote(Rating.Like);
     }
 
+    /**
+     * Returns bot's message for the reaction on user's dislike.
+     * @return bot's message for the reaction on user's dislike.
+     */
     @Override
     public BotMessage onDislikeRating() {
         return rateLastAnecdote(Rating.Dislike);
     }
 
+    /**
+     * Returns bot's message for the reaction on user canceling anecdote rating.
+     * @return bot's message for the reaction on user canceling anecdote rating.
+     */
     @Override
     public BotMessage onCancelRating() {
         if (awaitsRating) {
@@ -105,6 +149,10 @@ public final class TamadaBot extends Bot {
         }
     }
 
+    /**
+     * Returns the message with user's favorite anecdotes list.
+     * @return the message with user's favorite anecdotes list.
+     */
     @Override
     public BotMessage showFavorites() {
         resetState();
@@ -119,6 +167,10 @@ public final class TamadaBot extends Bot {
         return buildBotMessage(message, "\r\n", favorites);
     }
 
+    /**
+     * Returns bot's message for reaction on user's laugh.
+     * @return bot's message for reaction on user's laugh.
+     */
     @Override
     public BotMessage onUserLaughed() {
         if (anecdoteIsTold) {
@@ -132,6 +184,10 @@ public final class TamadaBot extends Bot {
         }
     }
 
+    /**
+     * Returns bot's message for the situation when the user input is unintelligible.
+     * @return bot's message for the situation when the user input is unintelligible.
+     */
     @Override
     public BotMessage notUnderstand() {
         resetState();
@@ -139,6 +195,10 @@ public final class TamadaBot extends Bot {
         return buildBotMessage(Randomizer.getRandomElement(notUnderstandMessages));
     }
 
+    /**
+     * Forces the bot to stop awaiting user's input.
+     * @return bot's message after the stop chatting command.
+     */
     @Override
     public IRatableAnecdoteRepository getAnecdoteRepository() {
         return _anecdoteRepository;
@@ -152,11 +212,21 @@ public final class TamadaBot extends Bot {
         return buildBotMessage(Randomizer.getRandomElement(stopChatMessages));
     }
 
+    /**
+     * Returns the name of the bot.
+     * @return the name of the bot.
+     */
     @Override
     protected String getBotName() {
         return _configuration.BotName;
     }
 
+    /**
+     * Assigns the specified rating to the last anecdote and
+     * returns bot's message for reaction on user liked or disliked the last anecdote.
+     * @param rating the rating to be assigned to the last told anecdote.
+     * @return bot's message for reaction on user liked or disliked the last anecdote.
+     */
     private BotMessage rateLastAnecdote(Rating rating) {
         if (!anecdoteIsTold) {
             resetState();
@@ -174,6 +244,9 @@ public final class TamadaBot extends Bot {
             throw new IllegalArgumentException("Unexpected rating.");
     }
 
+    /**
+     * Resets the state of the bot.
+     */
     private void resetState() {
         anecdoteIsTold = false;
         awaitsRating = false;
