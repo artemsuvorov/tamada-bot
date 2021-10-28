@@ -43,7 +43,7 @@ public class RandomAnecdoteRepository implements IAnecdoteRepository {
      */
     @Override
     public boolean hasAnecdotes() {
-        return !_anecdotes.isEmpty();
+        return !_anecdotes.isEmpty() || !_toldAnecdotes.isEmpty();
     }
 
     /**

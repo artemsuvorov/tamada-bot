@@ -93,6 +93,7 @@ public final class TamadaBot extends Bot {
         if (anecdote instanceof IRatableAnecdote ratableAnecdote)
             lastAnecdote = ratableAnecdote;
 
+        awaitsRating = true;
         return buildBotMessage(starter, anecdote.getAnecdote());
     }
 
@@ -120,17 +121,8 @@ public final class TamadaBot extends Bot {
      * @return bot's message for the reaction on user's like.
      */
     @Override
-    public BotMessage onLikeRating() {
-        return rateLastAnecdote(Rating.Like);
-    }
-
-    /**
-     * Returns bot's message for the reaction on user's dislike.
-     * @return bot's message for the reaction on user's dislike.
-     */
-    @Override
-    public BotMessage onDislikeRating() {
-        return rateLastAnecdote(Rating.Dislike);
+    public BotMessage onRatingSubmitted(Rating rating) {
+        return rateLastAnecdote(rating);
     }
 
     /**
@@ -150,21 +142,85 @@ public final class TamadaBot extends Bot {
     }
 
     /**
+     * Returns bot's message for the reaction on user didn't provide rating.
+     * @return bot's message for the reaction on user didn't provide rating.
+     */
+    @Override
+    public BotMessage onRateNoRatingProvided() {
+        if (awaitsRating) {
+            resetState();
+            awaitsRating = true;
+            return buildBotMessage(_configuration.OnRateNoRatingProvided);
+        } else {
+            resetState();
+            return notUnderstand();
+        }
+    }
+
+    /**
+     * Returns bot's message for the reaction on user provided invalid rating
+     * during anecdote rating.
+     * @return bot's message for the reaction on user provided invalid rating.
+     */
+    @Override
+    public BotMessage onRateInvalidRatingProvided() {
+        if (awaitsRating) {
+            resetState();
+            awaitsRating = true;
+            return buildBotMessage(_configuration.OnRateInvalidRatingProvided);
+        } else {
+            resetState();
+            return notUnderstand();
+        }
+    }
+
+    /**
+     * Returns bot's message for the reaction on user provided no rating
+     * during showing anecdotes.
+     * @return bot's message for the reaction on user provided no rating.
+     */
+    @Override
+    public BotMessage onShowNoRatingProvided() {
+        resetState();
+        return buildBotMessage(_configuration.OnShowNoRatingProvided);
+    }
+
+    /**
+     * Returns bot's message for the reaction on user provided invalid rating
+     * during showing anecdotes.
+     * @return bot's message for the reaction on user provided invalid rating.
+     */
+    @Override
+    public BotMessage onShowInvalidRatingProvided() {
+        resetState();
+        return buildBotMessage(_configuration.OnShowInvalidRatingProvided);
+    }
+
+    /**
+     * Returns the message with anecdotes which have the specified rating.
+     * @return the message with anecdotes which have the specified rating.
+     */
+    @Override
+    public BotMessage showAnecdotesOfRating(Rating rating) {
+        resetState();
+
+        var onShowAnecdotesMessages = _configuration.OnShowAnecdotesMessages;
+        var message = Randomizer.getRandomElement(onShowAnecdotesMessages);
+        if (_anecdoteRepository.getAnecdotesOfRating(rating).isEmpty())
+            return buildBotMessage(_configuration.OnAnecdotesEmptyMessage);
+
+        var anecdotes = _anecdoteRepository.getAnecdotesOfRating(rating)
+                .stream().map(Object::toString).collect(Collectors.joining("\r\n"));
+        return buildBotMessage(message, "\r\n", anecdotes);
+    }
+
+    /**
      * Returns the message with user's favorite anecdotes list.
      * @return the message with user's favorite anecdotes list.
      */
     @Override
     public BotMessage showFavorites() {
-        resetState();
-
-        var onShowFavoritesMessages = _configuration.OnShowFavoritesMessages;
-        var message = Randomizer.getRandomElement(onShowFavoritesMessages);
-        if (_anecdoteRepository.getFavorites().isEmpty())
-            return buildBotMessage(_configuration.OnFavoritesEmptyMessage);
-
-        var favorites = _anecdoteRepository.getFavorites()
-                .stream().map(Object::toString).collect(Collectors.joining("\r\n"));
-        return buildBotMessage(message, "\r\n", favorites);
+        return showAnecdotesOfRating(Rating.Excellent);
     }
 
     /**
@@ -204,6 +260,10 @@ public final class TamadaBot extends Bot {
         return _anecdoteRepository;
     }
 
+    /**
+     * Forces the bot to stop awaiting user's input.
+     * @return bot's resulting message after this action.
+     */
     @Override
     public BotMessage stopChatting() {
         resetState();
@@ -228,7 +288,7 @@ public final class TamadaBot extends Bot {
      * @return bot's message for reaction on user liked or disliked the last anecdote.
      */
     private BotMessage rateLastAnecdote(Rating rating) {
-        if (!anecdoteIsTold) {
+        if (!awaitsRating) {
             resetState();
             return notUnderstand();
         }
@@ -236,12 +296,12 @@ public final class TamadaBot extends Bot {
         resetState();
         lastAnecdote.rate(rating);
 
-        if (rating == Rating.Like)
+        if (rating == Rating.Excellent)
             return buildBotMessage(Randomizer.getRandomElement(_configuration.OnLikeRatingMessages));
         else if (rating == Rating.Dislike)
             return buildBotMessage(Randomizer.getRandomElement(_configuration.OnDislikeRatingMessages));
         else
-            throw new IllegalArgumentException("Unexpected rating.");
+            return buildBotMessage(Randomizer.getRandomElement(_configuration.OnAnyRatingMessages));
     }
 
     /**

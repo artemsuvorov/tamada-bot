@@ -4,6 +4,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.stream.Collectors;
 
 /**
@@ -13,7 +15,7 @@ import java.util.stream.Collectors;
 public final class RandomRatableAnecdoteRepository
         extends RandomAnecdoteRepository implements IRatableAnecdoteRepository, PropertyChangeListener {
 
-    private ArrayList<IAnecdote> _favoriteAnecdotes;
+    private Dictionary<Rating, ArrayList<IAnecdote>> _ratedAnecdotes;
 
     public RandomRatableAnecdoteRepository(String[] anecdotes) {
         // converts string array of anecdotes to list of IAnecdotes
@@ -24,16 +26,31 @@ public final class RandomRatableAnecdoteRepository
     public RandomRatableAnecdoteRepository(ArrayList<IAnecdote> anecdotes) {
         super(anecdotes);
         listenRatableAnecdotes(anecdotes);
-        _favoriteAnecdotes = new ArrayList<IAnecdote>();
+
+        _ratedAnecdotes = new Hashtable<Rating, ArrayList<IAnecdote>>();
+        for (var rating : Rating.values()) {
+            _ratedAnecdotes.put(rating, new ArrayList<IAnecdote>());
+        }
     }
 
     /**
      * Returns the list of favorite anecdotes.
+     *
      * @return the list of favorite anecdotes.
      */
     @Override
     public ArrayList<IAnecdote> getFavorites() {
-        return _favoriteAnecdotes;
+        return getAnecdotesOfRating(Rating.Excellent);
+    }
+
+    /**
+     * Returns a list of anecdotes with the specified rating.
+     * @param rating the rating of the anecdotes list.
+     * @return a list of anecdotes with the specified rating.
+     */
+    @Override
+    public ArrayList<IAnecdote> getAnecdotesOfRating(Rating rating) {
+        return _ratedAnecdotes.get(rating);
     }
 
     /**
@@ -58,12 +75,14 @@ public final class RandomRatableAnecdoteRepository
      * @param newRating the rating after the change occured.
      */
     private void onAnecdoteRatingChanged(IAnecdote anecdote, Rating oldRating, Rating newRating) {
-        if (oldRating == Rating.Like && newRating != Rating.Like)
-            _favoriteAnecdotes.remove(anecdote);
-        if (newRating == Rating.Like)
-            _favoriteAnecdotes.add(anecdote);
-        if (newRating == Rating.Dislike)
+        if (oldRating != newRating) {
+            getAnecdotesOfRating(newRating).add(anecdote);
+            if (oldRating != Rating.None)
+                getAnecdotesOfRating(oldRating).remove(anecdote);
+        }
+        if (newRating == Rating.Dislike) {
             _toldAnecdotes.remove(anecdote);
+        }
     }
 
     /**

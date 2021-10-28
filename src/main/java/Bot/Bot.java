@@ -1,6 +1,7 @@
 package Bot;
 
 import Anecdote.IRatableAnecdoteRepository;
+import Anecdote.Rating;
 
 /**
  * Defines a bot abstract class that can send messages such as
@@ -93,14 +94,7 @@ public abstract class Bot {
      * the reaction on user's like.
      * @return bot's message for the reaction on user's like.
      */
-    public abstract BotMessage onLikeRating();
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the reaction on user's dislike.
-     * @return bot's message for the reaction on user's dislike.
-     */
-    public abstract BotMessage onDislikeRating();
+    public abstract BotMessage onRatingSubmitted(Rating rating);
 
     /**
      * When overridden in a derived class, returns bot's message for
@@ -108,6 +102,41 @@ public abstract class Bot {
      * @return bot's message for the reaction on user canceling anecdote rating.
      */
     public abstract BotMessage onCancelRating();
+
+    /**
+     * When overridden in a derived class, returns bot's message for
+     * the reaction on user didn't provide rating.
+     * @return bot's message for the reaction on user didn't provide rating.
+     */
+    public abstract BotMessage onRateNoRatingProvided();
+
+    /**
+     * When overridden in a derived class, returns bot's message for
+     * the reaction on user provided invalid rating during anecdote rating.
+     * @return bot's message for the reaction on user provided invalid rating.
+     */
+    public abstract BotMessage onRateInvalidRatingProvided();
+
+    /**
+     * When overridden in a derived class, returns bot's message for
+     * the reaction on user provided no rating during showing anecdotes.
+     * @return bot's message for the reaction on user provided no rating.
+     */
+    public abstract BotMessage onShowNoRatingProvided();
+
+    /**
+     * When overridden in a derived class, returns bot's message for
+     * the reaction on user provided invalid rating during showing anecdotes.
+     * @return bot's message for the reaction on user provided invalid rating.
+     */
+    public abstract BotMessage onShowInvalidRatingProvided();
+
+    /**
+     * When overridden in a derived class, returns the message with anecdotes
+     * which have the specified rating.
+     * @return the message with anecdotes which have the specified rating.
+     */
+    public abstract BotMessage showAnecdotesOfRating(Rating rating);
 
     /**
      * When overridden in a derived class, returns the message with user's favorite anecdotes list.
@@ -131,5 +160,4 @@ public abstract class Bot {
 
     // todo: delete later
     public abstract IRatableAnecdoteRepository getAnecdoteRepository();
-
 }

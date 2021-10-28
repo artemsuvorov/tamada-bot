@@ -23,10 +23,15 @@ public class BotConfiguration {
     public String OnCannotRateAnecdoteMessage;
     public String[] OnLikeRatingMessages;
     public String[] OnDislikeRatingMessages;
+    public String[] OnAnyRatingMessages;
     public String[] OnCancelRatingMessages;
+    public String OnRateNoRatingProvided;
+    public String OnRateInvalidRatingProvided;
 
-    public String OnFavoritesEmptyMessage;
-    public String[] OnShowFavoritesMessages;
+    public String OnShowNoRatingProvided;
+    public String OnShowInvalidRatingProvided;
+    public String OnAnecdotesEmptyMessage;
+    public String[] OnShowAnecdotesMessages;
 
     public String[] OnLikedMessages;
     public String[] OnLaughMessages;

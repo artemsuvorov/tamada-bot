@@ -14,4 +14,12 @@ public interface IRatableAnecdoteRepository extends IAnecdoteRepository {
      */
     ArrayList<IAnecdote> getFavorites();
 
+
+    /**
+     * When overridden, returns a list of anecdotes with the specified rating.
+     * @param rating the rating of the anecdotes list.
+     * @return a list of anecdotes with the specified rating.
+     */
+    ArrayList<IAnecdote> getAnecdotesOfRating(Rating rating);
+
 }
