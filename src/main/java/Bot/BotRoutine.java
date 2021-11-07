@@ -9,52 +9,52 @@ import java.io.PrintStream;
 import java.util.Scanner;
 
 /**
- * Represents a helper class that sets up the
- * user-bot interaction loop (user's input -> parsing -> bot's output)
- * when is given an input and an output streams.
+ * Представляет собой вспомогательный клсс который организует цикл
+ * взаимодействия пользователя и бота (ввод -> парсинг -> вывод)
+ * в предоставленных потоках входных и выходных данных.
  */
 public final class BotRoutine {
 
-    private final Bot _bot;
+    private final Bot bot;
 
-    private final PrintStream _out;
-    private final InputStream _in;
+    private final PrintStream out;
+    private final InputStream in;
 
-    private final Scanner _scanner;
-    private final CommandParser _commandParser;
+    private final Scanner scanner;
+    private final CommandParser commandParser;
 
     public BotRoutine(Bot bot, PrintStream out, InputStream in) {
-        _bot = bot;
+        this.bot = bot;
 
-        _out = out;
-        _in = in;
+        this.out = out;
+        this.in = in;
 
-        _scanner = new Scanner(_in);
-        _commandParser = new CommandParser(_bot);
+        scanner = new Scanner(this.in);
+        commandParser = new CommandParser(this.bot);
     }
 
     /**
-     * Starts the user-bot interaction loop (user's input -> parsing -> bot's output).
+     * Запускает цикл взаимодействия пользователя и бота (ввод -> парсинг -> вывод).
      */
     public void start() {
-        var startConversation = new MessageCommand(_bot, bot -> bot.onStartConversation());
+        var startConversation = new MessageCommand(bot, bot -> bot.onStartConversation());
         executeCommand(startConversation);
 
-        while (_bot.isChatting()) {
-            var input = _scanner.nextLine();
-            var command = _commandParser.parse(input);
+        while (bot.isChatting()) {
+            var input = scanner.nextLine();
+            var command = commandParser.parse(input);
             executeCommand(command);
         }
     }
 
     /**
-     * Executes the specified command and prints
-     * the resulting message to the output stream.
-     * @param command the command to be executed
+     * Исполняет указанную команду и печатает сообщение результата
+     * в поток выходных данных.
+     * @param command команда, которая будет исполнена.
      */
     private void executeCommand(BotCommand command) {
         var message = command.execute();
-        _out.println(message);
+        out.println(message);
     }
 
 }

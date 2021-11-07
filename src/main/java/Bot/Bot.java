@@ -4,12 +4,12 @@ import Anecdote.IRatableAnecdoteRepository;
 import Anecdote.Rating;
 
 /**
- * Defines a bot abstract class that can send messages such as
- * greeting, introducing, telling anecdotes etc.
+ * Определяет абстрактный класс бота, который может
+ * отправлять сообщения такие, как приветствие, справка, анекдот и т.д.
  */
 public abstract class Bot {
 
-    private boolean _isChatting = true;
+    private boolean isActive = true;
 
     /**
      * Builds and returns the message concatenated with the bot's name in the front.
@@ -26,7 +26,7 @@ public abstract class Bot {
      * @return true if the bot is awaiting user's input, otherwise false.
      */
     public boolean isChatting() {
-        return _isChatting;
+        return isActive;
     }
 
     /**
@@ -34,7 +34,7 @@ public abstract class Bot {
      * @return bot's resulting message after this action.
      */
     public BotMessage stopChatting() {
-        _isChatting = false;
+        isActive = false;
         return buildBotMessage();
     }
 

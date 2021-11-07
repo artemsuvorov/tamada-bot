@@ -1,32 +1,32 @@
 package Anecdote;
 
 /**
- * Represents a wrapper class of an anecdote string.
+ * Представляет собой класс анекдота с функцией получить содержание анекдота.
  */
 public class Anecdote implements IAnecdote {
 
-    private final String _anecdote;
+    private final String text;
 
     public Anecdote(String anecdote) {
-        _anecdote = anecdote;
+        text = anecdote;
     }
 
     /**
-     * Returns an anecdote as a string.
-     * @return the string with an anecdote.
+     * Возвращает содержание анекдота в виде строки.
+     * @return Содержание анекдота в виде строки.
      */
     @Override
-    public String getAnecdote() {
-        return _anecdote;
+    public String getText() {
+        return text;
     }
 
     /**
-     * Returns an anecdote as a string.
-     * @return the string with an anecdote.
+     * Преобразует анекдот в строку и возвращает содержание анекдота.
+     * @return Содержание анекдота в виде строки.
      */
     @Override
     public String toString() {
-        return getAnecdote();
+        return getText();
     }
 
 }

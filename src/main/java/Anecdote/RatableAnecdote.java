@@ -4,58 +4,58 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 /**
- * Represents a wrapper class of an anecdote string that can be rated.
+ * Представляет собой класс анекдота, который может быть оценен.
  */
 public class RatableAnecdote extends Anecdote implements IRatableAnecdote {
 
-    private final PropertyChangeSupport _support;
-    private Rating _rating;
+    private final PropertyChangeSupport support;
+    private Rating rating;
 
     public RatableAnecdote(String anecdote) {
         super(anecdote);
-        _support = new PropertyChangeSupport(this);
-        _rating = Rating.None;
+        support = new PropertyChangeSupport(this);
+        rating = Rating.None;
     }
 
     /**
-     * Returns the current rating of the anecdote.
-     * @return the current rating of the anecdote.
+     * Возвращает текущую оценку анекдота.
+     * По умолчанию, каждый анекдот имеет оценку Rating.None.
+     * @return Текущая оценка анекдота.
      */
     @Override
     public Rating getRating() {
-        return _rating;
+        return rating;
     }
 
     /**
-     * Assigns the specified rating to the anecdote and
-     * notifies all the listeners about the anecdote rating change.
-     * @param rating the rating to be assigned to the anecdote.
+     * Присваивает указанную оценку анекдоту.
+     * Если анекдот изменил свою оценку, метод оповещает об этом всех подписчиков.
+     * @param rating оценка, которая будет присвоена анекдоту.
      */
     @Override
-    public void rate(Rating rating) {
-        if (_rating == rating) return;
-        Rating oldRating = _rating, newRating = rating;
-        _rating = rating;
-        _support.firePropertyChange("_rating", oldRating, newRating);
+    public void setRating(Rating rating) {
+        if (this.rating == rating) return;
+        Rating oldRating = this.rating, newRating = rating;
+        this.rating = rating;
+        support.firePropertyChange("rating", oldRating, newRating);
     }
 
     /**
-     * Subscribes the specified object to listen to the rating property change.
-     * @param listener the object that to be subscribed to listen to the rating property change.
+     * Подписывает указанный объект на прослушивание изменений оценки этого анекдота.
+     * @param listener объект, который будет подписан на прослушивание изменений оценки.
      */
     @Override
     public void addListener(PropertyChangeListener listener) {
-        _support.addPropertyChangeListener(listener);
+        support.addPropertyChangeListener(listener);
     }
 
     /**
-     * Unsubscribes the specified object from listening to the rating property change.
-     * @param listener the object that to be unsubscribed from
-     *                 listening to the rating property change.
+     * Отписывает указанный объект от прослушивания изменений оценки этого анекдота.
+     * @param listener объект, который будет отписан от прослушивания изменений оценки.
      */
     @Override
     public void removeListener(PropertyChangeListener listener) {
-        _support.removePropertyChangeListener(listener);
+        support.removePropertyChangeListener(listener);
     }
 
 }

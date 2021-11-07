@@ -4,7 +4,7 @@ import Bot.Bot;
 import Bot.BotMessage;
 
 /**
- * Defines an abstract class of a command that can be executed by the bot.
+ * Определяет абстрактный класс команды, которая исполняется ботом.
  */
 public abstract class BotCommand {
 
@@ -14,10 +14,10 @@ public abstract class BotCommand {
         Bot = bot;
     }
 
+    // TODO: make return void
     /**
-     * When overridden in a derived class, executes the command
-     * by the bot and returns the resulting message.
-     * @return the result message after the command execution.
+     * Когда переопределена в наследуемом классе,
+     * заставляет бота выполнить некоторую команду.
      */
     public abstract BotMessage execute();
 

@@ -9,13 +9,13 @@ import java.util.Hashtable;
 import java.util.stream.Collectors;
 
 /**
- * Represents a repository of ratable anecdotes class
- * that returns anecdotes one by one in a random sequence.
+ * Представляет собой репозиторий, который состоит из поддерживающих оценивание анекдотов
+ * и который выдает анекдот один за другим в случайной неповторяющейся последовательности.
  */
 public final class RandomRatableAnecdoteRepository
         extends RandomAnecdoteRepository implements IRatableAnecdoteRepository, PropertyChangeListener {
 
-    private Dictionary<Rating, ArrayList<IAnecdote>> _ratedAnecdotes;
+    private Dictionary<Rating, ArrayList<IAnecdote>> ratedAnecdotes;
 
     public RandomRatableAnecdoteRepository(String[] anecdotes) {
         // converts string array of anecdotes to list of IAnecdotes
@@ -27,16 +27,15 @@ public final class RandomRatableAnecdoteRepository
         super(anecdotes);
         listenRatableAnecdotes(anecdotes);
 
-        _ratedAnecdotes = new Hashtable<Rating, ArrayList<IAnecdote>>();
+        ratedAnecdotes = new Hashtable<Rating, ArrayList<IAnecdote>>();
         for (var rating : Rating.values()) {
-            _ratedAnecdotes.put(rating, new ArrayList<IAnecdote>());
+            ratedAnecdotes.put(rating, new ArrayList<IAnecdote>());
         }
     }
 
     /**
-     * Returns the list of favorite anecdotes.
-     *
-     * @return the list of favorite anecdotes.
+     * Возвращает список любимых анекдотов.
+     * @return Список любимых анекдотов.
      */
     @Override
     public ArrayList<IAnecdote> getFavorites() {
@@ -44,35 +43,36 @@ public final class RandomRatableAnecdoteRepository
     }
 
     /**
-     * Returns a list of anecdotes with the specified rating.
-     * @param rating the rating of the anecdotes list.
-     * @return a list of anecdotes with the specified rating.
+     * Возвращает список анекдотов, имеющих указанную оценку.
+     * @param rating оценка, которую имеют анекдоты.
+     * @return Список анекдотов, имеющих указанную оценку.
      */
     @Override
     public ArrayList<IAnecdote> getAnecdotesOfRating(Rating rating) {
-        return _ratedAnecdotes.get(rating);
+        return ratedAnecdotes.get(rating);
     }
 
     /**
-     * This method gets called when a bound property is changed.
-     * @param evt A PropertyChangeEvent object describing the
-     *            event source and the property that has changed.
+     * Этот метод вызывается, когда происходит изменение свойства,
+     * на которое кто-то был подписан.
+     * @param evt PropertyChangeEvent объект, описывающий источник
+     *            события и свойство, которое было изменено.
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getSource() instanceof IRatableAnecdote anecdote && evt.getPropertyName() == "_rating")
+        if (evt.getSource() instanceof IRatableAnecdote anecdote && evt.getPropertyName() == "rating")
             if (evt.getOldValue() instanceof Rating oldRating && evt.getNewValue() instanceof Rating newRating)
                 onAnecdoteRatingChanged(anecdote, oldRating, newRating);
     }
 
     /**
-     * Action to be performed when the rating of one of the anecdotes
-     * from the repository was changed.
-     * If anecdote was liked, it is to be added to the favorite anecdote list.
-     * If anecdote was disliked, it is to be removed from the repository.
-     * @param anecdote anecdote which rating was changed.
-     * @param oldRating the rating before the change occurred.
-     * @param newRating the rating after the change occured.
+     * Действие, которое должно быть исполнено,
+     * когда оценка одного из анекдотов была изменена.
+     * Если анекдот был лайкнут, он добавляется в список любымых анекдотов.
+     * Если анекдот был дизлайкнут, он удаляется из этого репозитория.
+     * @param anecdote анекдот, чья оценка была изменена.
+     * @param oldRating предыдущая оценка анекдота.
+     * @param newRating новая оценка анекдота.
      */
     private void onAnecdoteRatingChanged(IAnecdote anecdote, Rating oldRating, Rating newRating) {
         if (oldRating != newRating) {
@@ -81,14 +81,14 @@ public final class RandomRatableAnecdoteRepository
                 getAnecdotesOfRating(oldRating).remove(anecdote);
         }
         if (newRating == Rating.Dislike) {
-            _toldAnecdotes.remove(anecdote);
+            toldAnecdotes.remove(anecdote);
         }
     }
 
     /**
-     * Subscribes the repository to listen to the rating property change
-     * for each of the specified anecdotes.
-     * @param anecdotes the anecdotes which ratings are to be listened.
+     * Подписывает этот репозиторий на прослушивание изменения
+     * оценки у каждого из указанных анекдотов.
+     * @param anecdotes анекдоты, чьи оценки будут прослушиваться.
      */
     private void listenRatableAnecdotes(ArrayList<IAnecdote> anecdotes) {
         for (var anecdote : anecdotes)

@@ -1,34 +1,26 @@
 package Bot;
 
 /**
- * Represents a string wrapper class that consists of
- * bot's name and bot's message.
+ * Представляет собой класс обертку над String,
+ * которая является строкой, состоящей из имени бота и текста его сообщения.
  */
 public class BotMessage {
 
-    private final String _botName;
-    private final String _value;
+    private final String botName;
+    private final String text;
 
     public BotMessage(String botName, String value) {
-        _botName = botName;
-        _value = value;
+        this.botName = botName;
+        text = value;
     }
 
     /**
-     * Returns the string consisting of the bot's name and bot's message.
-     * @return the string consisting of the bot's name and bot's message.
+     * Возвращает строку состояющую из имени бота и текста его сообщения.
+     * @return Строку состояющую из имени бота и текста его сообщения.
      */
     @Override
     public String toString() {
-        return buildMessageString();
-    }
-
-    /**
-     * Builds and returns the string consisting of the bot's name and bot's message.
-     * @return the string consisting of the bot's name and bot's message.
-     */
-    private String buildMessageString() {
-        return _botName + ": " + _value;
+        return botName + ": " + text;
     }
 
 }

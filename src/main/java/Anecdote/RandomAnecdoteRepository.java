@@ -6,13 +6,13 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
- * Represents an anecdote repository class
- * that returns anecdotes one by one in a random sequence.
+ * Представляет собой класс репозитория анекдотов,
+ * который выдает анекдот один за другим в случайной неповторяющейся последовательности.
  */
 public class RandomAnecdoteRepository implements IAnecdoteRepository {
 
-    private ArrayList<IAnecdote> _anecdotes;
-    protected ArrayList<IAnecdote> _toldAnecdotes;
+    private ArrayList<IAnecdote> anecdotes;
+    protected ArrayList<IAnecdote> toldAnecdotes;
 
     public RandomAnecdoteRepository(String[] anecdotes) {
         // converts string array of anecdotes to list of IAnecdotes
@@ -24,55 +24,57 @@ public class RandomAnecdoteRepository implements IAnecdoteRepository {
         if (anecdotes == null || anecdotes.isEmpty())
             throw new IllegalArgumentException("Anecdotes collection cannot be null or empty.");
 
-        _anecdotes = anecdotes;
-        _toldAnecdotes = new ArrayList<IAnecdote>();
+        this.anecdotes = anecdotes;
+        toldAnecdotes = new ArrayList<IAnecdote>();
     }
 
     /**
-     * Returns the count of anecdotes stored in the repository.
-     * @return the count of anecdotes stored in the repository.
+     * Возвращает количество анекдотов, которые содержатся в этом репозитории.
+     * @return количество анекдотов, которые содержатся в этом репозитории.
      */
     @Override
     public int getCount() {
-        return _anecdotes.size() + _toldAnecdotes.size();
+        return anecdotes.size() + toldAnecdotes.size();
     }
 
     /**
-     * Indicates if the repository is empty.
-     * @return true if the repository has at least one anecdote, otherwise false.
+     * Указывает, является ли этот репозиторий пустым.
+     * @return true, если репозиторий пуст, иначе false.
      */
     @Override
     public boolean hasAnecdotes() {
-        return !_anecdotes.isEmpty() || !_toldAnecdotes.isEmpty();
+        return !anecdotes.isEmpty() || !toldAnecdotes.isEmpty();
     }
 
     /**
-     * Picks and returns random anecdote from the pool of the untold ones.
-     * When all the anecdotes from the repository are told, considers told ones as untold.
-     * @return a random anecdote from the pool of untold ones.
+     * Выбирает и возвращает случайный анекдот из набора еще не рассказанных анекдотов.
+     * Когда все анекдоты этого репозитория рассказаны, принимает рассказанные анекдоты
+     * как еще не рассказанные.
+     * @return Случайный анекдот из набора еще не рассказанных анекдотов.
      */
     @Override
     public IAnecdote getNextAnecdote() {
-        if (_anecdotes.isEmpty() && _toldAnecdotes.isEmpty())
+        if (anecdotes.isEmpty() && toldAnecdotes.isEmpty())
             throw new IllegalArgumentException("There are no anecdotes in repository!");
 
-        if (_anecdotes.isEmpty()) {
-            _anecdotes = _toldAnecdotes;
-            _toldAnecdotes = new ArrayList<IAnecdote>();
+        if (anecdotes.isEmpty()) {
+            anecdotes = toldAnecdotes;
+            toldAnecdotes = new ArrayList<IAnecdote>();
         }
 
         return getRandomAnecdote();
     }
 
     /**
-     * Returns a random anecdote and removes it from the pool of the untold ones.
-     * @return a random anecdote from the pool of untold ones.
+     * Возвращает случайный анекдот из набора еще не рассказанных анекдотов
+     * и удаляет его из этого набора.
+     * @return Случайный анекдот из набора еще не рассказанных анекдотов.
      */
     protected IAnecdote getRandomAnecdote() {
-        var index = Randomizer.getRandomNumber(_anecdotes.size());
-        var anecdote = _anecdotes.get(index);
-        _anecdotes.remove(index);
-        _toldAnecdotes.add(anecdote);
+        var index = Randomizer.getRandomNumber(anecdotes.size());
+        var anecdote = anecdotes.get(index);
+        anecdotes.remove(index);
+        toldAnecdotes.add(anecdote);
         return anecdote;
     }
 

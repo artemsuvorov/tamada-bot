@@ -14,9 +14,13 @@ import java.nio.file.Path;
 
 public class Main {
 
-    private static final String _configFilePath = new File("src\\main\\resources\\tamada-config.json").getAbsolutePath();
-    private static final Charset _encoding = StandardCharsets.UTF_8;
+    private static final String configFilePath = new File("src\\main\\resources\\tamada-config.json").getAbsolutePath();
+    private static final Charset defaultEncoding = StandardCharsets.UTF_8;
 
+    /**
+     * Основная точка входа в программу.
+     * @param args Аргументы, задаваемые при запуске программы.
+     */
     public static void main(String[] args) {
         var config = deserializeBotConfig();
         var tamada = new TamadaBot(config);
@@ -25,8 +29,8 @@ public class Main {
     }
 
     /**
-     * Parses bot-config.json and returns Bot configuration object.
-     * @return Bot configuration object parsed from bot-config.json
+     * Парсит файл bot-config.json и возвращает полученную конфигурацию бота BotConfiguration.
+     * @return Конфигурация бота полученная из файла bot-config.json.
      * @throws com.google.gson.JsonSyntaxException
      */
     private static BotConfiguration deserializeBotConfig() {
@@ -36,13 +40,14 @@ public class Main {
     }
 
     /**
-     * Reads and returns the contents of bot the config file.
-     * @return The contents of the bot config file.
+     * Читает bot-config.json и возвращает его содержание в виде строки,
+     * если операция чтения прошла успешно, иначе null.
+     * @return Содержание файла bot-config.json в виде строки.
      */
     private static String readBotConfigFile() {
-        var path = Path.of(_configFilePath);
+        var path = Path.of(configFilePath);
         try {
-            return Files.readString(path, _encoding);
+            return Files.readString(path, defaultEncoding);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             return null;
