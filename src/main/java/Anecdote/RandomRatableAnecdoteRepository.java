@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public final class RandomRatableAnecdoteRepository
         extends RandomAnecdoteRepository implements IRatableAnecdoteRepository, PropertyChangeListener {
 
-    private Dictionary<Rating, ArrayList<IAnecdote>> ratedAnecdotes;
+    private final Dictionary<Rating, ArrayList<IAnecdote>> ratedAnecdotes;
 
     public RandomRatableAnecdoteRepository(String[] anecdotes) {
         // converts string array of anecdotes to list of IAnecdotes
