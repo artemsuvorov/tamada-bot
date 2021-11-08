@@ -1,8 +1,8 @@
-# Tamada the Chatbot
-Not a very intelligent pseudo chatbot that can tell anecdotes.
+# Чат бот Тамада
+Не слишком интеллектуально продвинутый чат бот, который умеет рассказывать анекдоты. 
 
-### Goals
-1. Interaction with the chatbot in the console;
-2. Pseudo chatting with the user (i.e. multiple user commands support);
-3. Telling anecdotes and sending them from time to time;
-4. Receiving feedback (whether the user liked or disliked an anecdote)
+### Цели
+1. Работа в консоли;
+2. Псевдо общение с ботом (т.е. поддержка некоторого множества пользовательских комманд);
+3. Рассылка анекдотов и/или смешных историй;
+4. Оценивание анекдотов пользователем (по пятибалльной шкале).
