@@ -1,14 +1,14 @@
 package Anecdote;
 
 /**
- * Defines a wrapper interface of an anecdote string.
+ * Определяет интерфейс анекдота с функцией получить содержание анекдота.
  */
 public interface IAnecdote {
 
     /**
-     * When overridden, returns an anecdote as a string.
-     * @return the string with the anecdote.
+     * Когда переопределен, возвращает содержание анекдота в виде строки.
+     * @return Содержание анекдота в виде строки.
      */
-    String getAnecdote();
+    String getText();
 
 }

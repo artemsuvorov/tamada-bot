@@ -5,51 +5,53 @@ import Utils.Randomizer;
 import java.util.stream.Collectors;
 
 /**
- * Represents a Tamada bot implementation with all the bot's messages
- * being taken from the specified bot's configuration.
+ * Представляет собой класс, который реализует абстрактный класс бота,
+ * беря все необходимые сообщения бота из указанной конфигурации.
  */
-public final class TamadaBot extends Bot {
+public final class TamadaBot extends AnecdoteBot {
 
-    private final BotConfiguration _configuration;
-    private final IRatableAnecdoteRepository _anecdoteRepository;
+    private final BotConfiguration configuration;
+    private final IRatableAnecdoteRepository anecdoteRepository;
 
     private IRatableAnecdote lastAnecdote;
     private boolean anecdoteIsTold = false;
     private boolean awaitsRating = false;
 
     public TamadaBot(BotConfiguration configuration) {
-        _configuration = configuration;
-        _anecdoteRepository = new RandomRatableAnecdoteRepository(_configuration.Anecdotes);
+        this.configuration = configuration;
+        anecdoteRepository = new RandomRatableAnecdoteRepository(this.configuration.Anecdotes);
     }
 
+    // TODO: maybe there is no need in all of these methods
+
     /**
-     * Returns bot's message for conversation start.
-     * @return bot's message for conversation start.
+     * Возвращает сообщение бота, предназначенное для старта общения.
+     * @return Сообщение бота, предназначенное для старта общения.
      */
     @Override
     public BotMessage onStartConversation() {
         resetState();
-        return buildBotMessage(_configuration.ConversationStart);
+        return buildBotMessage(configuration.ConversationStart);
     }
 
     /**
-     * Returns bot's message for answer on "what can you do" question.
-     * @return bot's message for answer on "what can you do" question.
+     * Возвращает сообщение бота, являющееся ответом на вопрос "что ты умеешь".
+     * @return сообщение бота, являющееся ответом на вопрос "что ты умеешь".
      */
     @Override
     public BotMessage onWhatCanYouDo() {
         resetState();
-        return buildBotMessage(_configuration.HelpMessage);
+        return buildBotMessage(configuration.HelpMessage);
     }
 
     /**
-     * Returns bot's message for greeting.
-     * @return bot's message for greeting.
+     * Возвращает сообщение бота, содержащее приветствие.
+     * @return Сообщение бота, содержащее приветствие.
      */
     @Override
     public BotMessage greet() {
         resetState();
-        var greetings = _configuration.Greetings;
+        var greetings = configuration.Greetings;
         return buildBotMessage(Randomizer.getRandomElement(greetings));
     }
 
@@ -60,7 +62,7 @@ public final class TamadaBot extends Bot {
     @Override
     public BotMessage onHowAreYou() {
         resetState();
-        var onHowAreYouMessages = _configuration.OnHowAreYouMessages;
+        var onHowAreYouMessages = configuration.OnHowAreYouMessages;
         return buildBotMessage(Randomizer.getRandomElement(onHowAreYouMessages));
     }
 
@@ -71,7 +73,7 @@ public final class TamadaBot extends Bot {
     @Override
     public BotMessage introduce() {
         resetState();
-        return buildBotMessage(_configuration.Introduction);
+        return buildBotMessage(configuration.Introduction);
     }
 
     /**
@@ -82,11 +84,11 @@ public final class TamadaBot extends Bot {
     public BotMessage tellAnecdote() {
         resetState();
 
-        if (!_anecdoteRepository.hasAnecdotes())
-            return buildBotMessage(_configuration.OnNoAnecdotesMessage);
+        if (!anecdoteRepository.hasAnecdotes())
+            return buildBotMessage(configuration.OnNoAnecdotesMessage);
 
-        var anecdote = _anecdoteRepository.getNextAnecdote();
-        var starters = _configuration.AnecdoteStarters;
+        var anecdote = anecdoteRepository.getNextAnecdote();
+        var starters = configuration.AnecdoteStarters;
         var starter = Randomizer.getRandomElement(starters);
 
         anecdoteIsTold = true;
@@ -94,7 +96,7 @@ public final class TamadaBot extends Bot {
             lastAnecdote = ratableAnecdote;
 
         awaitsRating = true;
-        return buildBotMessage(starter, anecdote.getAnecdote());
+        return buildBotMessage(starter, anecdote.getText());
     }
 
     /**
@@ -105,15 +107,15 @@ public final class TamadaBot extends Bot {
     public BotMessage inviteToRate() {
         if (!anecdoteIsTold) {
             resetState();
-            return buildBotMessage(_configuration.OnNoAnecdotesToRateMessage);
+            return buildBotMessage(configuration.OnNoAnecdotesToRateMessage);
         }
         if (lastAnecdote == null) {
             resetState();
-            return buildBotMessage(_configuration.OnCannotRateAnecdoteMessage);
+            return buildBotMessage(configuration.OnCannotRateAnecdoteMessage);
         }
 
         awaitsRating = true;
-        return buildBotMessage(_configuration.RateAnecdoteInvitation);
+        return buildBotMessage(configuration.RateAnecdoteInvitation);
     }
 
     /**
@@ -133,7 +135,7 @@ public final class TamadaBot extends Bot {
     public BotMessage onCancelRating() {
         if (awaitsRating) {
             resetState();
-            var messages = _configuration.OnCancelRatingMessages;
+            var messages = configuration.OnCancelRatingMessages;
             return buildBotMessage(Randomizer.getRandomElement(messages));
         } else {
             resetState();
@@ -150,7 +152,7 @@ public final class TamadaBot extends Bot {
         if (awaitsRating) {
             resetState();
             awaitsRating = true;
-            return buildBotMessage(_configuration.OnRateNoRatingProvided);
+            return buildBotMessage(configuration.OnRateNoRatingProvided);
         } else {
             resetState();
             return notUnderstand();
@@ -167,7 +169,7 @@ public final class TamadaBot extends Bot {
         if (awaitsRating) {
             resetState();
             awaitsRating = true;
-            return buildBotMessage(_configuration.OnRateInvalidRatingProvided);
+            return buildBotMessage(configuration.OnRateInvalidRatingProvided);
         } else {
             resetState();
             return notUnderstand();
@@ -182,7 +184,7 @@ public final class TamadaBot extends Bot {
     @Override
     public BotMessage onShowNoRatingProvided() {
         resetState();
-        return buildBotMessage(_configuration.OnShowNoRatingProvided);
+        return buildBotMessage(configuration.OnShowNoRatingProvided);
     }
 
     /**
@@ -193,7 +195,7 @@ public final class TamadaBot extends Bot {
     @Override
     public BotMessage onShowInvalidRatingProvided() {
         resetState();
-        return buildBotMessage(_configuration.OnShowInvalidRatingProvided);
+        return buildBotMessage(configuration.OnShowInvalidRatingProvided);
     }
 
     /**
@@ -204,12 +206,12 @@ public final class TamadaBot extends Bot {
     public BotMessage showAnecdotesOfRating(Rating rating) {
         resetState();
 
-        var onShowAnecdotesMessages = _configuration.OnShowAnecdotesMessages;
+        var onShowAnecdotesMessages = configuration.OnShowAnecdotesMessages;
         var message = Randomizer.getRandomElement(onShowAnecdotesMessages);
-        if (_anecdoteRepository.getAnecdotesOfRating(rating).isEmpty())
-            return buildBotMessage(_configuration.OnAnecdotesEmptyMessage);
+        if (anecdoteRepository.getAnecdotesOfRating(rating).isEmpty())
+            return buildBotMessage(configuration.OnAnecdotesEmptyMessage);
 
-        var anecdotes = _anecdoteRepository.getAnecdotesOfRating(rating)
+        var anecdotes = anecdoteRepository.getAnecdotesOfRating(rating)
                 .stream().map(Object::toString).collect(Collectors.joining("\r\n"));
         return buildBotMessage(message, "\r\n", anecdotes);
     }
@@ -230,11 +232,11 @@ public final class TamadaBot extends Bot {
     @Override
     public BotMessage onUserLaughed() {
         if (anecdoteIsTold) {
-            var onUserLikedMessages = _configuration.OnLikedMessages;
+            var onUserLikedMessages = configuration.OnLikedMessages;
             resetState();
             return buildBotMessage(Randomizer.getRandomElement(onUserLikedMessages));
         } else {
-            var onUserLaughedMessages = _configuration.OnLaughMessages;
+            var onUserLaughedMessages = configuration.OnLaughMessages;
             resetState();
             return buildBotMessage(Randomizer.getRandomElement(onUserLaughedMessages));
         }
@@ -247,7 +249,7 @@ public final class TamadaBot extends Bot {
     @Override
     public BotMessage notUnderstand() {
         resetState();
-        var notUnderstandMessages = _configuration.NotUnderstandMessages;
+        var notUnderstandMessages = configuration.NotUnderstandMessages;
         return buildBotMessage(Randomizer.getRandomElement(notUnderstandMessages));
     }
 
@@ -257,7 +259,7 @@ public final class TamadaBot extends Bot {
      */
     @Override
     public IRatableAnecdoteRepository getAnecdoteRepository() {
-        return _anecdoteRepository;
+        return anecdoteRepository;
     }
 
     /**
@@ -265,11 +267,21 @@ public final class TamadaBot extends Bot {
      * @return bot's resulting message after this action.
      */
     @Override
-    public BotMessage stopChatting() {
+    public BotMessage stop() {
         resetState();
-        super.stopChatting();
-        var stopChatMessages = _configuration.StopChatMessages;
+        super.stop();
+        var stopChatMessages = configuration.StopChatMessages;
         return buildBotMessage(Randomizer.getRandomElement(stopChatMessages));
+    }
+
+    /**
+     * Builds and returns the message concatenated with the bot's name in the front.
+     * @param messages strings to be concatenated and be put into the bot's message.
+     * @return the bot's message with the bot's name.
+     */
+    @Override
+    protected BotMessage buildBotMessage(String... messages) {
+        return new BotMessage(getBotName(), String.join(" ", messages));
     }
 
     /**
@@ -278,7 +290,7 @@ public final class TamadaBot extends Bot {
      */
     @Override
     protected String getBotName() {
-        return _configuration.BotName;
+        return configuration.BotName;
     }
 
     /**
@@ -294,14 +306,14 @@ public final class TamadaBot extends Bot {
         }
 
         resetState();
-        lastAnecdote.rate(rating);
+        lastAnecdote.setRating(rating);
 
         if (rating == Rating.Excellent)
-            return buildBotMessage(Randomizer.getRandomElement(_configuration.OnLikeRatingMessages));
+            return buildBotMessage(Randomizer.getRandomElement(configuration.OnLikeRatingMessages));
         else if (rating == Rating.Dislike)
-            return buildBotMessage(Randomizer.getRandomElement(_configuration.OnDislikeRatingMessages));
+            return buildBotMessage(Randomizer.getRandomElement(configuration.OnDislikeRatingMessages));
         else
-            return buildBotMessage(Randomizer.getRandomElement(_configuration.OnAnyRatingMessages));
+            return buildBotMessage(Randomizer.getRandomElement(configuration.OnAnyRatingMessages));
     }
 
     /**

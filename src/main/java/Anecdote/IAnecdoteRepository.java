@@ -1,26 +1,26 @@
 package Anecdote;
 
 /**
- * Defines an interface of an anecdote repository
- * that returns anecdotes one by one.
+ * Определяет интерфейс репозитория анекдотов, который выдает анекдоты один за другим.
  */
 public interface IAnecdoteRepository {
 
     /**
-     * When overridden, returns the count of anecdotes stored in the repository.
-     * @return the count of anecdotes stored in the repository.
+     * Когда переопределен, возвращает количество анекдотов,
+     * которые содержатся в этом репозитории.
+     * @return количество анекдотов, которые содержатся в этом репозитории.
      */
     int getCount();
 
     /**
-     * When overridden, indicates if the repository is empty.
-     * @return true if the repository has at least one anecdote, otherwise false.
+     * Когда переопределен, указывает, является ли этот репозиторий пустым.
+     * @return true, если репозиторий пуст, иначе false.
      */
     boolean hasAnecdotes();
 
     /**
-     * When overridden, returns the next anecdote from the repository.
-     * @return the next anecdote from the repository.
+     * Когда переопределен, возвращает следующий анекдот из этого репозитория.
+     * @return Следующий анекдот из этого репозитория.
      */
     IAnecdote getNextAnecdote();
 

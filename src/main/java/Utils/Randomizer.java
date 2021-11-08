@@ -3,26 +3,28 @@ package Utils;
 import java.util.Random;
 
 /**
- * Represents a helper randomizer class.
+ * Представляет собой класс, содержащий вспомогательные статические методы для рандомизации.
  */
 public class Randomizer {
 
-    private static final Random _random = new Random();
+    private static final Random random = new Random();
 
     /**
-     * Returns a non-negative random integer that is less than the specified maximum.
-     * @param max the exclusive upper bound of the random number to be generated.
-     * @return non-negative random integer that is less than the specified maximum.
+     * Возвращает случайное неотрицательное целое число,
+     * которое строго меньше, чем указазанный максимум.
+     * @param max верхняя граница случайного числа (не включительно).
+     * @return Неотрицательное целое число,
+     * которое строго меньше, чем указазанный максимум.
      */
     public static int getRandomNumber(int max) {
-        return _random.nextInt(max);
+        return random.nextInt(max);
     }
 
     /**
-     * Returns random element from the specified collection.
-     * @param elements a collection from which the element is to be picked.
-     * @param <T> type of the collection of elements.
-     * @return random element from the specified collection.
+     * Возвращает случайный элемент из указанной коллекции.
+     * @param elements коллекция, из которой выбирается случайный элемент.
+     * @param <T> тип коллекции элементов.
+     * @return Случайный элемент из указанной коллекции.
      */
     public static <T> T getRandomElement(T... elements) {
         var randomIndex = getRandomNumber(elements.length);

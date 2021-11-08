@@ -1,6 +1,6 @@
-import Bot.Bot;
 import Bot.BotConfiguration;
-import Bot.BotRoutine;
+import Bot.ConsoleTamadaBotService;
+import Bot.IAnecdoteBot;
 import Bot.TamadaBot;
 
 import com.google.gson.Gson;
@@ -15,28 +15,24 @@ import java.nio.file.Path;
 @TestInstance(value = TestInstance.Lifecycle.PER_METHOD)
 public class TamadaBotTests {
 
-    private static final String _configFilePath = new File("src\\main\\resources\\tamada-config.json").getAbsolutePath();
-    private static final Charset _encoding = StandardCharsets.UTF_8;
-
-    private BotConfiguration _botConfig;
-    private Bot _bot;
-    private OutputStream _byteArrayOut;
-    private PrintStream _out;
-    private InputStream _in;
-    private BotRoutine _routine;
+    private OutputStream byteArrayOut;
+    private PrintStream out;
+    private InputStream in;
+    private BotConfiguration config;
+    private IAnecdoteBot bot;
+    private ConsoleTamadaBotService service;
 
     @Test
     public void testTwoAnecdotesWereAddedToFavorites() {
         var input = """
                 расскажи анекдот
-                оценить
-                нравится
+                оценить 5
                 расскажи анекдот
-                нравится
+                оценить 5
                 стоп
                 """;
-        executeBotRoutineWith(input);
-        var actualLength = _bot.getAnecdoteRepository().getFavorites().size();
+        executeUserCommands(input);
+        var actualLength = bot.getAnecdoteRepository().getFavorites().size();
         assertEqualsOnBot(2, actualLength);
     }
 
@@ -44,28 +40,28 @@ public class TamadaBotTests {
     public void testAnecdoteWasDeletedFromRepository() {
         var input = """
                 расскажи анекдот
-                оценить
-                НЕ НРАВИТСЯ
+                оценить 1
                 стоп
                 """;
-        executeBotRoutineWith(input);
-        var expected = _botConfig.Anecdotes.length-1;
-        var actualLength = _bot.getAnecdoteRepository().getCount();
+        executeUserCommands(input);
+        var expected = config.Anecdotes.length-1;
+        var actualLength = bot.getAnecdoteRepository().getCount();
         assertEqualsOnBot(expected, actualLength);
     }
 
-    private void executeBotRoutineWith(String input)  {
+    private void executeUserCommands(String input)  {
         try {
-            _bot = createTamadaBotFromTamadaConfig();
-            _byteArrayOut = new ByteArrayOutputStream();
-            _out = new PrintStream(_byteArrayOut);
-            _in = new ByteArrayInputStream(input.getBytes());
+            byteArrayOut = new ByteArrayOutputStream();
+            out = new PrintStream(byteArrayOut);
+            in = new ByteArrayInputStream(input.getBytes());
 
-            _routine = new BotRoutine(_bot, _out, _in);
-            _routine.start();
+            service = new ConsoleTamadaBotService(out, in);
+            config = service.getConfig();
+            bot = service.getBot();
+            service.start();
 
-            _in.close();
-            _out.close();
+            in.close();
+            out.close();
         }
         catch (Exception ex) {
             Assertions.fail(ex);
@@ -73,29 +69,8 @@ public class TamadaBotTests {
     }
 
     private <T> void assertEqualsOnBot(T expected, T actual) {
-        var botOutput = "Bot's output:\r\n" + _byteArrayOut.toString();
+        var botOutput = "Bot's output:\r\n" + byteArrayOut.toString();
         Assertions.assertEquals(expected, actual, botOutput);
-    }
-
-    private Bot createTamadaBotFromTamadaConfig() {
-        _botConfig = deserializeBotConfig();
-        return new TamadaBot(_botConfig);
-    }
-
-    private BotConfiguration deserializeBotConfig() {
-        var json = readBotConfigFile();
-        var gson = new Gson();
-        return gson.fromJson(json, BotConfiguration.class);
-    }
-
-    private String readBotConfigFile() {
-        var path = Path.of(_configFilePath);
-        try {
-            return Files.readString(path, _encoding);
-        } catch (Exception ex) {
-            Assertions.fail(ex);
-            return null;
-        }
     }
 
 }

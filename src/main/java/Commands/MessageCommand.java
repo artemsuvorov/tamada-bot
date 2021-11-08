@@ -1,29 +1,34 @@
 package Commands;
 
-import Bot.Bot;
 import Bot.BotMessage;
+import Bot.IAnecdoteBot;
 
+import java.io.PrintStream;
 import java.util.function.Function;
 
 /**
- * Represents a command that after execution by the bot returns a message.
+ * Представляет собой комманду, которая может быть напечатана в поток
+ * выходных данных как сообщение после выполнения действия бота.
  */
 public class MessageCommand extends BotCommand {
 
-    Function<Bot, BotMessage> _messageSelector;
+    private final Function<IAnecdoteBot, BotMessage> action;
+    private final PrintStream out;
 
-    public MessageCommand(Bot bot, Function<Bot, BotMessage> messageSelector) {
+    public MessageCommand(IAnecdoteBot bot, PrintStream out, Function<IAnecdoteBot, BotMessage> action) {
         super(bot);
-        _messageSelector = messageSelector;
+        this.action = action;
+        this.out = out;
     }
 
     /**
-     * Returns the message from the bot.
-     * @return the message from the bot.
+     * Выполняет заданное действие бота и
+     * печатает результирующее сообщение бота в поток выходных данных.
      */
     @Override
-    public BotMessage execute() {
-        return _messageSelector.apply(Bot);
+    public void execute() {
+        var message = action.apply(Bot);
+        out.println(message);
     }
 
 }

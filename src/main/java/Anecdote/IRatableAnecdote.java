@@ -1,37 +1,33 @@
 package Anecdote;
 
 import java.beans.PropertyChangeListener;
-import java.util.Observable;
-
 
 /**
- * Defines an interface of an anecdote string that can be rated.
+ * Определяет интерфейс анекдота, который может быть оценен.
  */
 public interface IRatableAnecdote extends IAnecdote {
 
     /**
-     * When overridden, returns the current rating of the anecdote.
-     * @return the current rating of the anecdote.
+     * Когда переопределен, возвращает текущую оценку анекдота.
+     * @return Текущая оценка анекдота.
      */
     Rating getRating();
 
     /**
-     * When overridden, assigns the specified rating to the anecdote.
-     * @param rating the rating to be assigned to the anecdote.
+     * Когда переопределен, присваивает указанную оценку анекдоту.
+     * @param rating оценка, которая будет присвоена анекдоту.
      */
-    void rate(Rating rating);
+    void setRating(Rating rating);
 
     /**
-     * When overridden, subscribes the specified object to listen to the rating property change.
-     * @param listener the object that to be subscribed to listen to the rating property change.
+     * Когда переопределен, подписывает указанный объект на прослушивание изменений оценки этого анекдота.
+     * @param listener объект, который будет подписан на прослушивание изменений оценки.
      */
     void addListener(PropertyChangeListener listener);
 
     /**
-     * When overridden, unsubscribes the specified object from
-     * listening to the rating property change.
-     * @param listener the object that to be unsubscribed from
-     *                 listening to the rating property change.
+     * Когда переопределен, отписывает указанный объект от прослушивания изменений оценки этого анекдота.
+     * @param listener объект, который будет отписан от прослушивания изменений оценки.
      */
     void removeListener(PropertyChangeListener listener);
 
