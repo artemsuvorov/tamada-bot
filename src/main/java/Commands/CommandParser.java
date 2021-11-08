@@ -1,9 +1,13 @@
 package Commands;
 
 import Anecdote.Rating;
-import Bot.Bot;
+import Bot.BotMessage;
+import Bot.IAnecdoteBot;
 
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.Scanner;
+import java.util.function.Function;
 
 /**
  * Представляет собой класс, который на основе от заданного входного
@@ -11,10 +15,12 @@ import java.util.Scanner;
  */
 public final class CommandParser {
 
-    private final Bot bot;
+    private final IAnecdoteBot bot;
+    private final PrintStream out;
 
-    public CommandParser(Bot bot) {
+    public CommandParser(IAnecdoteBot bot, PrintStream out) {
         this.bot = bot;
+        this.out = out;
     }
 
     /**
@@ -27,25 +33,25 @@ public final class CommandParser {
         var ninput = input.trim().toLowerCase();
 
         if (inputContainsAll(ninput, "что", "умеешь"))
-            return new MessageCommand(bot, bot -> bot.onWhatCanYouDo());
+            return newMessageCommand(IAnecdoteBot::onWhatCanYouDo);
 
         if (inputContainsAll(ninput, "кто", "ты") || ninput.contains("представься"))
-            return new MessageCommand(bot, bot -> bot.introduce());
+            return newMessageCommand(IAnecdoteBot::introduce);
 
         if (inputContainsAny(ninput, "привет", "здравствуй", "здрасте", "салют", "доброго времени суток", "хай"))
-            return new MessageCommand(bot, bot -> bot.greet());
+            return newMessageCommand(IAnecdoteBot::greet);
 
         if (inputContainsAll(ninput, "как", "дела") || inputContainsAll(ninput, "как", "ты"))
-            return new MessageCommand(bot, bot -> bot.onHowAreYou());
+            return newMessageCommand(IAnecdoteBot::onHowAreYou);
 
         if (inputContainsAll(ninput, "скажи", "анекдот"))
-            return new MessageCommand(bot, bot -> bot.tellAnecdote());
+            return newMessageCommand(IAnecdoteBot::tellAnecdote);
 
         if (inputContainsAny(ninput, "ха", "смешно") && !ninput.contains("не"))
-            return new MessageCommand(bot, bot -> bot.onUserLaughed());
+            return newMessageCommand(IAnecdoteBot::onUserLaughed);
 
         if (inputContainsAny(ninput, "избранное"))
-            return new MessageCommand(bot, bot -> bot.showFavorites());
+            return newMessageCommand(IAnecdoteBot::showFavorites);
 
         if (inputContainsAny(ninput, "покажи", "показать"))
             return newShowAnecdotesCommand(ninput);
@@ -54,18 +60,18 @@ public final class CommandParser {
             return newRatingCommand(ninput);
 
         if (inputContainsAny(ninput, "нрав") && !ninput.contains("не"))
-            return new MessageCommand(bot, bot -> bot.onRatingSubmitted(Rating.Excellent));
+            return newMessageCommand(bot -> bot.onRatingSubmitted(Rating.Excellent));
 
         if (inputContainsAll(ninput, "не", "нрав"))
-            return new MessageCommand(bot, bot -> bot.onRatingSubmitted(Rating.Dislike));
+            return newMessageCommand(bot -> bot.onRatingSubmitted(Rating.Dislike));
 
         if (inputContainsAny(ninput, "отмен"))
-            return new MessageCommand(bot, bot -> bot.onCancelRating());
+            return newMessageCommand(IAnecdoteBot::onCancelRating);
 
         if (inputContainsAny(ninput, "хватит", "стоп", "пока", "до свидания"))
-            return new MessageCommand(bot, bot -> bot.stopChatting());
+            return newMessageCommand(IAnecdoteBot::stop);
 
-        return new MessageCommand(bot, bot -> bot.notUnderstand());
+        return newMessageCommand(IAnecdoteBot::notUnderstand);
     }
 
     /**
@@ -78,12 +84,12 @@ public final class CommandParser {
     private BotCommand newRatingCommand(String input) {
         var scanner = new Scanner(input).useDelimiter("\\D+");
         if (!scanner.hasNextInt())
-            return new MessageCommand(bot, bot -> bot.onRateNoRatingProvided());
+            return newMessageCommand(IAnecdoteBot::onRateNoRatingProvided);
         var number = scanner.nextInt();
         if (number < 1 || number > 5)
-            return  new MessageCommand(bot, bot -> bot.onRateInvalidRatingProvided());
+            return  newMessageCommand(IAnecdoteBot::onRateInvalidRatingProvided);
         var rating = Rating.fromInteger(number);
-        return new MessageCommand(bot, bot -> bot.onRatingSubmitted(rating));
+        return newMessageCommand(bot -> bot.onRatingSubmitted(rating));
     }
 
     /**
@@ -96,12 +102,23 @@ public final class CommandParser {
     private BotCommand newShowAnecdotesCommand(String input) {
         var scanner = new Scanner(input).useDelimiter("\\D+");
         if (!scanner.hasNextInt())
-            return new MessageCommand(bot, bot -> bot.onShowNoRatingProvided());
+            return newMessageCommand(IAnecdoteBot::onShowNoRatingProvided);
         var number = scanner.nextInt();
         if (number < 1 || number > 5)
-            return  new MessageCommand(bot, bot -> bot.onShowInvalidRatingProvided());
+            return  newMessageCommand(IAnecdoteBot::onShowInvalidRatingProvided);
         var rating = Rating.fromInteger(number);
-        return new MessageCommand(bot, bot -> bot.showAnecdotesOfRating(rating));
+        return newMessageCommand(bot -> bot.showAnecdotesOfRating(rating));
+    }
+
+    /**
+     * Возвращает новую команду, которая печатает сообщение, передав
+     * в ее конструктор бота bot и поток вывода out.
+     * @param action действие, которое будет выполнено ботом, и результат будет напечатан в out.
+     * @return новую команду, которая печатает сообщение, передав
+     * в ее конструктор бота bot и поток вывода out.
+     */
+    private BotCommand newMessageCommand(Function<IAnecdoteBot, BotMessage> action) {
+        return new MessageCommand(bot, out, action);
     }
 
     /**

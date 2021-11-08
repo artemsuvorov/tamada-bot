@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
  * Представляет собой класс, который реализует абстрактный класс бота,
  * беря все необходимые сообщения бота из указанной конфигурации.
  */
-public final class TamadaBot extends Bot {
+public final class TamadaBot extends AnecdoteBot {
 
     private final BotConfiguration configuration;
     private final IRatableAnecdoteRepository anecdoteRepository;
@@ -267,11 +267,21 @@ public final class TamadaBot extends Bot {
      * @return bot's resulting message after this action.
      */
     @Override
-    public BotMessage stopChatting() {
+    public BotMessage stop() {
         resetState();
-        super.stopChatting();
+        super.stop();
         var stopChatMessages = configuration.StopChatMessages;
         return buildBotMessage(Randomizer.getRandomElement(stopChatMessages));
+    }
+
+    /**
+     * Builds and returns the message concatenated with the bot's name in the front.
+     * @param messages strings to be concatenated and be put into the bot's message.
+     * @return the bot's message with the bot's name.
+     */
+    @Override
+    protected BotMessage buildBotMessage(String... messages) {
+        return new BotMessage(getBotName(), String.join(" ", messages));
     }
 
     /**

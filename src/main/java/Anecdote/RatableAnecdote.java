@@ -8,12 +8,12 @@ import java.beans.PropertyChangeSupport;
  */
 public class RatableAnecdote extends Anecdote implements IRatableAnecdote {
 
-    private final PropertyChangeSupport support;
+    private final PropertyChangeSupport propertyChangeSupport;
     private Rating rating;
 
     public RatableAnecdote(String anecdote) {
         super(anecdote);
-        support = new PropertyChangeSupport(this);
+        propertyChangeSupport = new PropertyChangeSupport(this);
         rating = Rating.None;
     }
 
@@ -30,14 +30,14 @@ public class RatableAnecdote extends Anecdote implements IRatableAnecdote {
     /**
      * Присваивает указанную оценку анекдоту.
      * Если анекдот изменил свою оценку, метод оповещает об этом всех подписчиков.
-     * @param rating оценка, которая будет присвоена анекдоту.
+     * @param newRating оценка, которая будет присвоена анекдоту.
      */
     @Override
-    public void setRating(Rating rating) {
-        if (this.rating == rating) return;
-        Rating oldRating = this.rating, newRating = rating;
-        this.rating = rating;
-        support.firePropertyChange("rating", oldRating, newRating);
+    public void setRating(Rating newRating) {
+        if (rating == newRating) return;
+        var oldRating = rating;
+        rating = newRating;
+        propertyChangeSupport.firePropertyChange("rating", oldRating, newRating);
     }
 
     /**
@@ -46,7 +46,7 @@ public class RatableAnecdote extends Anecdote implements IRatableAnecdote {
      */
     @Override
     public void addListener(PropertyChangeListener listener) {
-        support.addPropertyChangeListener(listener);
+        propertyChangeSupport.addPropertyChangeListener(listener);
     }
 
     /**
@@ -55,7 +55,7 @@ public class RatableAnecdote extends Anecdote implements IRatableAnecdote {
      */
     @Override
     public void removeListener(PropertyChangeListener listener) {
-        support.removePropertyChangeListener(listener);
+        propertyChangeSupport.removePropertyChangeListener(listener);
     }
 
 }

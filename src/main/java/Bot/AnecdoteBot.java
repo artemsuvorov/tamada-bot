@@ -7,25 +7,23 @@ import Anecdote.Rating;
  * Определяет абстрактный класс бота, который может
  * отправлять сообщения такие, как приветствие, справка, анекдот и т.д.
  */
-public abstract class Bot {
+abstract class AnecdoteBot implements IAnecdoteBot {
 
     private boolean isActive = true;
 
     /**
-     * Builds and returns the message concatenated with the bot's name in the front.
+     * When overridden, builds and returns the message
+     * concatenated with the bot's name in the front.
      * @param messages strings to be concatenated and be put into the bot's message.
      * @return the bot's message with the bot's name.
      */
-    protected BotMessage buildBotMessage(String... messages) {
-        var name = getBotName();
-        return new BotMessage(name, String.join(" ", messages));
-    }
+    protected abstract BotMessage buildBotMessage(String... messages);
 
     /**
      * Indicates if the bot is awaiting user's input.
      * @return true if the bot is awaiting user's input, otherwise false.
      */
-    public boolean isChatting() {
+    public boolean isActive() {
         return isActive;
     }
 
@@ -33,7 +31,7 @@ public abstract class Bot {
      * Forces the bot to stop awaiting user's input.
      * @return bot's resulting message after this action.
      */
-    public BotMessage stopChatting() {
+    public BotMessage stop() {
         isActive = false;
         return buildBotMessage();
     }

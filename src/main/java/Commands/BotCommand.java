@@ -1,16 +1,16 @@
 package Commands;
 
-import Bot.Bot;
 import Bot.BotMessage;
+import Bot.IAnecdoteBot;
 
 /**
  * Определяет абстрактный класс команды, которая исполняется ботом.
  */
 public abstract class BotCommand {
 
-    protected final Bot Bot;
+    protected final IAnecdoteBot Bot;
 
-    protected BotCommand(Bot bot) {
+    protected BotCommand(IAnecdoteBot bot) {
         Bot = bot;
     }
 
@@ -19,6 +19,6 @@ public abstract class BotCommand {
      * Когда переопределена в наследуемом классе,
      * заставляет бота выполнить некоторую команду.
      */
-    public abstract BotMessage execute();
+    public abstract void execute();
 
 }
