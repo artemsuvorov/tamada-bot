@@ -1,16 +1,10 @@
 import Bot.BotConfiguration;
 import Bot.ConsoleTamadaBotService;
 import Bot.IAnecdoteBot;
-import Bot.TamadaBot;
 
-import com.google.gson.Gson;
 import org.junit.jupiter.api.*;
 
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 @TestInstance(value = TestInstance.Lifecycle.PER_METHOD)
 public class TamadaBotTests {

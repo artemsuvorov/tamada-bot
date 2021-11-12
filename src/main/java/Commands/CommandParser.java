@@ -38,7 +38,7 @@ public final class CommandParser {
         if (inputContainsAll(ninput, "кто", "ты") || ninput.contains("представься"))
             return newMessageCommand(IAnecdoteBot::introduce);
 
-        if (inputContainsAny(ninput, "привет", "здравствуй", "здрасте", "салют", "доброго времени суток", "хай"))
+        if (inputContainsAny(ninput, "привет", "здравст", "здраст", "салют", "доброго времени суток", "хай"))
             return newMessageCommand(IAnecdoteBot::greet);
 
         if (inputContainsAll(ninput, "как", "дела") || inputContainsAll(ninput, "как", "ты"))
