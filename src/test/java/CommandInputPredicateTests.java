@@ -67,6 +67,7 @@ public class CommandInputPredicateTests {
         var predicate = new InputPredicate().any("ха", "смешно").and().not().has("не");
         Assertions.assertTrue(predicate.match("хахахах"));
         Assertions.assertTrue(predicate.match("ха ха очень смешно!"));
+        Assertions.assertFalse(predicate.match("......."));
         Assertions.assertFalse(predicate.match("совсем не смешно"));
     }
 

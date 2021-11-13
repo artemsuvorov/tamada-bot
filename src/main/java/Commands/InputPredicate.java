@@ -73,6 +73,8 @@ public class InputPredicate {
     }
 
     private Predicate<String> getEmptyPredicate(PredicateComposition predicateComposition) {
+        if (inputFitsView != null)
+            return (input) -> false;
         if (predicateComposition == PredicateComposition.Or)
             return (input) -> false;
         else if (predicateComposition == PredicateComposition.And)
@@ -95,14 +97,13 @@ public class InputPredicate {
 
     private Predicate<String> getCombinedPredicate
             (PredicateComposition predicateComposition, Predicate<String> other) {
-        Predicate<String> result;
+        var otherPredicate = isNegated ? other.negate() : other;
         if (predicateComposition == PredicateComposition.Or)
-            result = inputFitsView.or(other);
+            return inputFitsView.or(otherPredicate);
         else if (predicateComposition == PredicateComposition.And)
-            result = inputFitsView.and(other);
+            return inputFitsView.and(otherPredicate);
         else
             throw new IllegalArgumentException("Invalid predicate composition type.");
-        return isNegated ? result.negate() : result;
     }
 
     /**
