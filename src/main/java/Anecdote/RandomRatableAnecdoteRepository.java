@@ -38,7 +38,7 @@ public final class RandomRatableAnecdoteRepository
      * @return Список любимых анекдотов.
      */
     @Override
-    public ArrayList<IAnecdote> getFavorites() {
+    public IAnecdote[] getFavorites() {
         return getAnecdotesOfRating(Rating.Excellent);
     }
 
@@ -48,8 +48,8 @@ public final class RandomRatableAnecdoteRepository
      * @return Список анекдотов, имеющих указанную оценку.
      */
     @Override
-    public ArrayList<IAnecdote> getAnecdotesOfRating(Rating rating) {
-        return ratedAnecdotes.get(rating);
+    public IAnecdote[] getAnecdotesOfRating(Rating rating) {
+        return ratedAnecdotes.get(rating).toArray(new IAnecdote[0]);
     }
 
     /**
@@ -76,9 +76,9 @@ public final class RandomRatableAnecdoteRepository
      */
     private void onAnecdoteRatingChanged(IAnecdote anecdote, Rating oldRating, Rating newRating) {
         if (oldRating != newRating) {
-            getAnecdotesOfRating(newRating).add(anecdote);
+            ratedAnecdotes.get(newRating).add(anecdote);
             if (oldRating != Rating.None)
-                getAnecdotesOfRating(oldRating).remove(anecdote);
+                ratedAnecdotes.get(oldRating).remove(anecdote);
         }
         if (newRating == Rating.Dislike) {
             toldAnecdotes.remove(anecdote);

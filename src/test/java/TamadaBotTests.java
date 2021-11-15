@@ -1,16 +1,11 @@
 import Bot.BotConfiguration;
-import Bot.ConsoleTamadaBotService;
+import Bot.IOTamadaBotService;
 import Bot.IAnecdoteBot;
-import Bot.TamadaBot;
 
-import com.google.gson.Gson;
+import Bot.IBotService;
 import org.junit.jupiter.api.*;
 
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 @TestInstance(value = TestInstance.Lifecycle.PER_METHOD)
 public class TamadaBotTests {
@@ -20,7 +15,8 @@ public class TamadaBotTests {
     private InputStream in;
     private BotConfiguration config;
     private IAnecdoteBot bot;
-    private ConsoleTamadaBotService service;
+
+    private CustomBotService service;
 
     @Test
     public void testTwoAnecdotesWereAddedToFavorites() {
@@ -32,7 +28,7 @@ public class TamadaBotTests {
                 стоп
                 """;
         executeUserCommands(input);
-        var actualLength = bot.getAnecdoteRepository().getFavorites().size();
+        var actualLength = bot.getAnecdoteRepository().getFavorites().length;
         assertEqualsOnBot(2, actualLength);
     }
 
@@ -55,7 +51,7 @@ public class TamadaBotTests {
             out = new PrintStream(byteArrayOut);
             in = new ByteArrayInputStream(input.getBytes());
 
-            service = new ConsoleTamadaBotService(out, in);
+            service = new CustomBotService(out, in);
             config = service.getConfig();
             bot = service.getBot();
             service.start();

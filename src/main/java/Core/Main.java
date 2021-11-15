@@ -1,6 +1,6 @@
 package Core;
 
-import Bot.ConsoleTamadaBotService;
+import Bot.IOTamadaBotService;
 
 public class Main {
 
@@ -9,7 +9,7 @@ public class Main {
      * @param args Аргументы, задаваемые при запуске программы.
      */
     public static void main(String[] args) {
-        var service = new ConsoleTamadaBotService(System.out, System.in);
+        var service = new IOTamadaBotService(System.out, System.in);
         service.start();
     }
 
