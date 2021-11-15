@@ -1,29 +1,60 @@
 package Commands;
 
+import Bot.BotConfiguration;
+import Bot.IAnecdoteBot;
+import Commands.BotCommands.*;
+
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CommandStorage {
 
-    private final Map<String, InputPredicate> inputPredicatesByCommandName;
+    private final BotConfiguration config;
+    private final IAnecdoteBot bot;
+    private final PrintStream out;
 
-    public CommandStorage() {
-        this.inputPredicatesByCommandName = new HashMap<>();
-        fillPredicatesByCommandNames();
+    private final Map<String, BotCommand> commandsByCommandNames;
+    private final BotCommand startConversation, notUnderstand;
+
+    public CommandStorage(IAnecdoteBot bot, BotConfiguration config, PrintStream out) {
+        this.bot = bot;
+        this.config = config;
+        this.out = out;
+
+        this.commandsByCommandNames = new HashMap<>();
+        fillCommandsByNames();
+
+        startConversation = new StartConversationCommand(this.bot, this.config, this.out);
+        notUnderstand = new NotUnderstandCommand(this.bot, this.config, this.out);
     }
 
-    private void fillPredicatesByCommandNames() {
-        inputPredicatesByCommandName.put("onWhatCanYouDo", new InputPredicate().all("что", "умеешь"));
-        inputPredicatesByCommandName.put("introduce", new InputPredicate().any("кто", "ты").or().has("представься"));
-        inputPredicatesByCommandName.put("greet", new InputPredicate().any("привет", "здравст", "здраст", "салют", "доброго времени суток", "хай"));
-        inputPredicatesByCommandName.put("onHowAreYou", new InputPredicate().all("как", "дела").or().all("как", "ты"));
-        inputPredicatesByCommandName.put("tellAnecdote", new InputPredicate().all("расскажи", "анекдот"));
-        inputPredicatesByCommandName.put("onUserLaughed", new InputPredicate().any("ха", "смешно").and().not().has("не"));
-        inputPredicatesByCommandName.put("showFavorites", new InputPredicate().has("избранное"));
-        inputPredicatesByCommandName.put("showAnecdotesOfRating", new InputPredicate().any("покажи", "показать"));
-        inputPredicatesByCommandName.put("onRatingSubmitted", new InputPredicate().has("оцен"));
-        inputPredicatesByCommandName.put("onCancelRating", new InputPredicate().has("отмен"));
-        inputPredicatesByCommandName.put("stop", new InputPredicate().any("хватит", "стоп", "пока", "до свидания"));
+    public BotCommand getStartConversationCommand() {
+        return startConversation;
+    }
+
+    public BotCommand getNotUnderstandCommand() {
+        return notUnderstand;
+    }
+
+    public BotCommand getCommandOrNull(String commandName) {
+        if (commandName == null) return null;
+        return commandsByCommandNames.getOrDefault(commandName, null);
+    }
+
+    private void fillCommandsByNames() {
+        commandsByCommandNames.put("onWhatCanYouDo", new WhatCanYouDoCommand(bot, config, out));
+        commandsByCommandNames.put("introduce", new IntroduceCommand(bot, config, out));
+        commandsByCommandNames.put("greet", new GreetCommand(bot, config, out));
+        commandsByCommandNames.put("onHowAreYou", new HowAreYouCommand(bot, config, out));
+        commandsByCommandNames.put("getNextAnecdote", new TellAnecdoteCommand(bot, config, out));
+        commandsByCommandNames.put("onUserLaughed", new OnLaughCommand(bot, config, out));
+        commandsByCommandNames.put("showFavorites", new ShowFavoritesCommand(bot, config, out));
+        commandsByCommandNames.put("onRatingSubmitted_Like", new OnLikeCommand(bot, config, out));
+        commandsByCommandNames.put("onRatingSubmitted_Dislike", new OnDislikeCommand(bot, config, out));
+        commandsByCommandNames.put("onRatingSubmitted", new OnUserRatingCommand(bot, config, out));
+        commandsByCommandNames.put("showAnecdotesOfRating", new ShowAnecdotesCommand(bot, config, out));
+        commandsByCommandNames.put("deactivate", new StopCommand(bot, config, out));
     }
 
 }

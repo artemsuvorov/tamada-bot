@@ -1,140 +1,73 @@
 package Bot;
 
+import Anecdote.IAnecdote;
 import Anecdote.IRatableAnecdoteRepository;
 import Anecdote.Rating;
 
 /**
  * Определяет интерфейс бота, который может
- * отправлять сообщения такие, как приветствие, справка, анекдот и т.д.
+ * отравлять анекдоты и принимать оценки для анекдотов.
  */
 public interface IAnecdoteBot {
 
     /**
-     * Indicates if the bot is awaiting user's input.
-     * @return true if the bot is awaiting user's input, otherwise false.
+     * Когда переопределен, возвращает имя бота.
+     * @return Имя бота.
+     */
+    String getName();
+
+    /**
+     * Когда переопределен, указывает активен ли бот, т.е. ожидает ли он
+     * следующего ввода пользователем сообщения.
+     * @return true, если бот активен, иначе false.
      */
     boolean isActive();
 
     /**
-     * Forces the bot to stop awaiting user's input.
-     * @return bot's resulting message after this action.
+     * Когда переопределен, указывает, был ли прежде рассказан анекдот.
+     * @return true, если анекдот был прежде рассказан, иначе false.
      */
-    BotMessage stop();
+    boolean wasAnecdoteTold();
 
     /**
-     * When overridden in a derived class, returns bot's message for conversation start.
-     * @return bot's message for conversation start.
+     * Когда переопределен, сбрасывает текущее состояние бота к стандартному.
      */
-    BotMessage onStartConversation();
+    void resetState();
 
     /**
-     * When overridden in a derived class, returns bot's message for
-     * answer on "what can you do" question.
-     * @return bot's message for answer on "what can you do" question.
+     * Когда переопределен, заставляет бота деактивироваться и
+     * перестать ожидать ввода пользователя.
      */
-    BotMessage onWhatCanYouDo();
+    void deactivate();
 
     /**
-     * When overridden in a derived class, returns bot's message for greeting.
-     * @return bot's message for greeting.
+     * Когда переопределен, указывает есть ли у бота еще анекдоты,
+     * которые могут быть рассказаны.
+     * @return true, если у бота еще анекдоты, которые могут быть рассказаны,
+     * иначе false.
      */
-    BotMessage greet();
+    boolean hasAnecdotes();
 
     /**
-     * When overridden in a derived class, returns bot's message for
-     * answer on "how are you" question.
-     * @return bot's message for answer on "how are you" question.
+     * Когда переопределен, возвращает следующий анекдот.
+     * @return Анекдот.
      */
-    BotMessage onHowAreYou();
+    IAnecdote getNextAnecdote();
 
     /**
-     * When overridden in a derived class, returns bot's message for introduction itself.
-     * @return bot's message for introduction itself.
+     * Когда переопределен, возвращает массив анекдотов,
+     * которые имеют указанную оценку.
+     * @return Массив анекдотов, которые имеют указанную оценку.
      */
-    BotMessage introduce();
+    IAnecdote[] getAnecdotesOfRating(Rating rating);
 
     /**
-     * When overridden in a derived class, returns the anecdote message.
-     * @return the anecdote message.
+     * Когда переопределен, присваивает указанную оценку
+     * последнему рассказанному анекдоту, если таковой есть.
+     * @param rating оценка, которая будет присвоена анекдоту.
      */
-    BotMessage tellAnecdote();
+    void setRatingForLastAnecdote(Rating rating);
 
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the rating invitation.
-     * @return bot's message for the rating invitation.
-     */
-    BotMessage inviteToRate();
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the reaction on user's like.
-     * @return bot's message for the reaction on user's like.
-     */
-    BotMessage onRatingSubmitted(Rating rating);
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the reaction on user canceling anecdote rating.
-     * @return bot's message for the reaction on user canceling anecdote rating.
-     */
-    BotMessage onCancelRating();
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the reaction on user didn't provide rating.
-     * @return bot's message for the reaction on user didn't provide rating.
-     */
-    BotMessage onRateNoRatingProvided();
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the reaction on user provided invalid rating during anecdote rating.
-     * @return bot's message for the reaction on user provided invalid rating.
-     */
-    BotMessage onRateInvalidRatingProvided();
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the reaction on user provided no rating during showing anecdotes.
-     * @return bot's message for the reaction on user provided no rating.
-     */
-    BotMessage onShowNoRatingProvided();
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the reaction on user provided invalid rating during showing anecdotes.
-     * @return bot's message for the reaction on user provided invalid rating.
-     */
-    BotMessage onShowInvalidRatingProvided();
-
-    /**
-     * When overridden in a derived class, returns the message with anecdotes
-     * which have the specified rating.
-     * @return the message with anecdotes which have the specified rating.
-     */
-    BotMessage showAnecdotesOfRating(Rating rating);
-
-    /**
-     * When overridden in a derived class, returns the message with user's favorite anecdotes list.
-     * @return the message with user's favorite anecdotes list.
-     */
-    BotMessage showFavorites();
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * reaction on user's laugh.
-     * @return bot's message for reaction on user's laugh.
-     */
-    BotMessage onUserLaughed();
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the situation when the user input is unintelligible.
-     * @return bot's message for the situation when the user input is unintelligible.
-     */
-    BotMessage notUnderstand();
-
-    // todo: delete it later
+    // todo: remove it later
     IRatableAnecdoteRepository getAnecdoteRepository();
 }

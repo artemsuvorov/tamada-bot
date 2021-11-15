@@ -55,7 +55,7 @@ public class RandomAnecdoteRepository implements IAnecdoteRepository {
     @Override
     public IAnecdote getNextAnecdote() {
         if (anecdotes.isEmpty() && toldAnecdotes.isEmpty())
-            throw new IllegalArgumentException("There are no anecdotes in repository!");
+            throw new IllegalArgumentException("There are no anecdotes In repository!");
 
         if (anecdotes.isEmpty()) {
             anecdotes = toldAnecdotes;

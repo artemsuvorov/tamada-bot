@@ -1,161 +1,119 @@
 package Bot;
 
-import Anecdote.IRatableAnecdoteRepository;
-import Anecdote.Rating;
+import Anecdote.*;
 
 /**
- * Определяет абстрактный класс бота, который может
- * отправлять сообщения такие, как приветствие, справка, анекдот и т.д.
+ * Представляет собой класс бота, который может отравлять анекдоты,
+ * принимать оценки для анекдотов и выполнять другие ботовские команды.
  */
-abstract class AnecdoteBot implements IAnecdoteBot {
+public final class AnecdoteBot implements IAnecdoteBot {
 
-    private boolean isActive = true;
+    private final String name;
+    private final IRatableAnecdoteRepository anecdoteRepository;
+
+    private BotState state = BotState.Default;
+    private IRatableAnecdote lastAnecdote;
+
+    public AnecdoteBot(String name, String[] anecdotes) {
+        this.name = name;
+        anecdoteRepository = new RandomRatableAnecdoteRepository(anecdotes);
+    }
 
     /**
-     * When overridden, builds and returns the message
-     * concatenated with the bot's name in the front.
-     * @param messages strings to be concatenated and be put into the bot's message.
-     * @return the bot's message with the bot's name.
+     * Возвращает имя бота.
+     * @return Имя бота.
      */
-    protected abstract BotMessage buildBotMessage(String... messages);
+    @Override
+    public String getName() {
+        return name;
+    }
 
     /**
-     * Indicates if the bot is awaiting user's input.
-     * @return true if the bot is awaiting user's input, otherwise false.
+     * Указывает активен ли бот, т.е. ожидает ли он
+     * следующего ввода пользователем сообщения.
+     * @return true, если бот активен, иначе false.
      */
+    @Override
     public boolean isActive() {
-        return isActive;
+        return state != BotState.Deactivated;
     }
 
     /**
-     * Forces the bot to stop awaiting user's input.
-     * @return bot's resulting message after this action.
+     * Указывает, был ли прежде рассказан анекдот.
+     * @return true, если анекдот был прежде рассказан, иначе false.
      */
-    public BotMessage stop() {
-        isActive = false;
-        return buildBotMessage();
+    @Override
+    public boolean wasAnecdoteTold() {
+        return state == BotState.AnecdoteTold;
     }
 
     /**
-     * When overridden in a derived class, returns the name of the bot.
-     * @return the name of the bot.
+     * Сбрасывает текущее состояние бота к стандартному.
      */
-    protected abstract String getBotName();
+    @Override
+    public void resetState() {
+        state = BotState.Default;
+    }
 
     /**
-     * When overridden in a derived class, returns bot's message for conversation start.
-     * @return bot's message for conversation start.
+     * Заставляет бота деактивироваться и перестать ожидать ввода пользователя.
      */
-    public abstract BotMessage onStartConversation();
+    @Override
+    public void deactivate() {
+        state = BotState.Deactivated;
+    }
 
     /**
-     * When overridden in a derived class, returns bot's message for
-     * answer on "what can you do" question.
-     * @return bot's message for answer on "what can you do" question.
+     * Указывает есть ли у бота еще анекдоты, которые могут быть рассказаны.
+     * @return true, если у бота еще анекдоты, которые могут быть рассказаны,
+     * иначе false.
      */
-    public abstract BotMessage onWhatCanYouDo();
+    public boolean hasAnecdotes() {
+        return anecdoteRepository.hasAnecdotes();
+    }
 
     /**
-     * When overridden in a derived class, returns bot's message for greeting.
-     * @return bot's message for greeting.
+     * Возвращает следующий анекдот.
+     * @return Анекдот.
      */
-    public abstract BotMessage greet();
+    @Override
+    public IAnecdote getNextAnecdote() {
+        resetState();
+        var anecdote = anecdoteRepository.getNextAnecdote();
+        state = BotState.AnecdoteTold;
+        if (anecdote instanceof IRatableAnecdote ratableAnecdote)
+            lastAnecdote = ratableAnecdote;
+        return anecdote;
+    }
 
     /**
-     * When overridden in a derived class, returns bot's message for
-     * answer on "how are you" question.
-     * @return bot's message for answer on "how are you" question.
+     * Возвращает массив анекдотов, которые имеют указанную оценку.
+     * @return Массив анекдотов, которые имеют указанную оценку.
      */
-    public abstract BotMessage onHowAreYou();
+    @Override
+    public IAnecdote[] getAnecdotesOfRating(Rating rating) {
+        resetState();
+        var anecdotes = anecdoteRepository.getAnecdotesOfRating(rating);
+        if (anecdotes == null || anecdotes.length <= 0)
+            return null;
+        return anecdotes;
+    }
 
     /**
-     * When overridden in a derived class, returns bot's message for introduction itself.
-     * @return bot's message for introduction itself.
+     * Присваивает указанную оценку последнему рассказанному анекдоту,
+     * если таковой есть.
+     * @param rating оценка, которая будет присвоена анекдоту.
      */
-    public abstract BotMessage introduce();
+    public void setRatingForLastAnecdote(Rating rating) {
+        if (state != BotState.AnecdoteTold) return;
+        lastAnecdote.setRating(rating);
+        resetState();
+    }
 
-    /**
-     * When overridden in a derived class, returns the anecdote message.
-     * @return the anecdote message.
-     */
-    public abstract BotMessage tellAnecdote();
+    // todo: remove it later
+    @Override
+    public IRatableAnecdoteRepository getAnecdoteRepository() {
+        return anecdoteRepository;
+    }
 
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the rating invitation.
-     * @return bot's message for the rating invitation.
-     */
-    public abstract BotMessage inviteToRate();
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the reaction on user's like.
-     * @return bot's message for the reaction on user's like.
-     */
-    public abstract BotMessage onRatingSubmitted(Rating rating);
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the reaction on user canceling anecdote rating.
-     * @return bot's message for the reaction on user canceling anecdote rating.
-     */
-    public abstract BotMessage onCancelRating();
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the reaction on user didn't provide rating.
-     * @return bot's message for the reaction on user didn't provide rating.
-     */
-    public abstract BotMessage onRateNoRatingProvided();
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the reaction on user provided invalid rating during anecdote rating.
-     * @return bot's message for the reaction on user provided invalid rating.
-     */
-    public abstract BotMessage onRateInvalidRatingProvided();
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the reaction on user provided no rating during showing anecdotes.
-     * @return bot's message for the reaction on user provided no rating.
-     */
-    public abstract BotMessage onShowNoRatingProvided();
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the reaction on user provided invalid rating during showing anecdotes.
-     * @return bot's message for the reaction on user provided invalid rating.
-     */
-    public abstract BotMessage onShowInvalidRatingProvided();
-
-    /**
-     * When overridden in a derived class, returns the message with anecdotes
-     * which have the specified rating.
-     * @return the message with anecdotes which have the specified rating.
-     */
-    public abstract BotMessage showAnecdotesOfRating(Rating rating);
-
-    /**
-     * When overridden in a derived class, returns the message with user's favorite anecdotes list.
-     * @return the message with user's favorite anecdotes list.
-     */
-    public abstract BotMessage showFavorites();
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * reaction on user's laugh.
-     * @return bot's message for reaction on user's laugh.
-     */
-    public abstract BotMessage onUserLaughed();
-
-    /**
-     * When overridden in a derived class, returns bot's message for
-     * the situation when the user input is unintelligible.
-     * @return bot's message for the situation when the user input is unintelligible.
-     */
-    public abstract BotMessage notUnderstand();
-
-    // todo: delete later
-    public abstract IRatableAnecdoteRepository getAnecdoteRepository();
 }
