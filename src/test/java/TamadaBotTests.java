@@ -1,8 +1,6 @@
-import Bot.BotConfiguration;
-import Bot.IOTamadaBotService;
-import Bot.IAnecdoteBot;
+import bot.BotConfiguration;
+import bot.IAnecdoteBot;
 
-import Bot.IBotService;
 import org.junit.jupiter.api.*;
 
 import java.io.*;
