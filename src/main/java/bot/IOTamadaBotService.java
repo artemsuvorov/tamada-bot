@@ -16,7 +16,7 @@ import java.util.Scanner;
  */
 public class IOTamadaBotService extends IOBotService {
 
-    private static final File configFile = new File("src\\main\\resources\\tamada-Config.json");
+    private static final File configFile = new File("src\\main\\resources\\tamada-config.json");
     private static final Charset defaultEncoding = StandardCharsets.UTF_8;
 
     private final InputPredicateStorage predicates;
@@ -27,7 +27,7 @@ public class IOTamadaBotService extends IOBotService {
 
     public IOTamadaBotService(PrintStream out, InputStream in) {
         super(out, in);
-        Config = deserializeBotConfig(configFile, defaultEncoding);
+        Config = BotConfiguration.deserializeBotConfig(configFile, defaultEncoding);
         Bot = new AnecdoteBot(Config.BotName, Config.Anecdotes);
         predicates = new InputPredicateStorage();
         commands = new CommandStorage(Bot, Config, Out);

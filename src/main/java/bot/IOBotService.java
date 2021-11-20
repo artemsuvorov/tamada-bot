@@ -26,31 +26,4 @@ public abstract class IOBotService implements IBotService {
      */
     public abstract void start();
 
-    /**
-     * Парсит файл Bot-Config.json и возвращает полученную конфигурацию бота BotConfiguration.
-     * @return Конфигурация бота полученная из файла Bot-Config.json.
-     * @throws com.google.gson.JsonSyntaxException
-     */
-    protected static BotConfiguration deserializeBotConfig(File configFile, Charset encoding) {
-        var json = readBotConfigFile(configFile, encoding);
-        var gson = new Gson();
-        return gson.fromJson(json, BotConfiguration.class);
-    }
-
-    /**
-     * Читает Bot-Config.json и возвращает его содержание в виде строки,
-     * если операция чтения прошла успешно, иначе null.
-     * @return Содержание файла Bot-Config.json в виде строки.
-     */
-    private static String readBotConfigFile(File configFile, Charset encoding) {
-        try (var fileStream = new FileInputStream(configFile)) {
-            var data = new byte[(int)configFile.length()];
-            fileStream.read(data);
-            return new String(data, encoding);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
 }
