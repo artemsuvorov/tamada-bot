@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  * Представляет собой репозиторий, который состоит из поддерживающих оценивание анекдотов
  * и который выдает анекдот один за другим в случайной неповторяющейся последовательности.
  */
-public final class RandomRatableAnecdoteRepository
+public class RandomRatableAnecdoteRepository
         extends RandomAnecdoteRepository implements IRatableAnecdoteRepository, PropertyChangeListener {
 
     private final Dictionary<Rating, ArrayList<IAnecdote>> ratedAnecdotes;
@@ -66,6 +66,22 @@ public final class RandomRatableAnecdoteRepository
     }
 
     /**
+     * Подписывает этот репозиторий на прослушивание изменения
+     * оценки у каждого из указанных анекдотов.
+     * @param anecdotes анекдоты, чьи оценки будут прослушиваться.
+     */
+    protected void listenRatableAnecdotes(ArrayList<IAnecdote> anecdotes) {
+        for (var anecdote : anecdotes)
+            if (anecdote instanceof IRatableAnecdote ratableAnecdote)
+                listenRatableAnecdote(ratableAnecdote);
+    }
+
+    // todo: add javadoc
+    protected void listenRatableAnecdote(IRatableAnecdote anecdote) {
+        anecdote.addListener(this);
+    }
+
+    /**
      * Действие, которое должно быть исполнено,
      * когда оценка одного из анекдотов была изменена.
      * Если анекдот был лайкнут, он добавляется в список любымых анекдотов.
@@ -82,18 +98,8 @@ public final class RandomRatableAnecdoteRepository
         }
         if (newRating == Rating.Dislike) {
             toldAnecdotes.remove(anecdote);
+            bannedAnecdotes.add(anecdote);
         }
-    }
-
-    /**
-     * Подписывает этот репозиторий на прослушивание изменения
-     * оценки у каждого из указанных анекдотов.
-     * @param anecdotes анекдоты, чьи оценки будут прослушиваться.
-     */
-    private void listenRatableAnecdotes(ArrayList<IAnecdote> anecdotes) {
-        for (var anecdote : anecdotes)
-            if (anecdote instanceof IRatableAnecdote ratableAnecdote)
-                ratableAnecdote.addListener(this);
     }
 
 }

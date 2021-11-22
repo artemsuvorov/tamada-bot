@@ -24,7 +24,7 @@ public final class AnecdoteBot implements IAnecdoteBot {
 
     public AnecdoteBot(BotConfiguration config, PrintStream out) {
         this.name = config.BotName;
-        anecdoteRepository = new RandomRatableAnecdoteRepository(config.Anecdotes);
+        anecdoteRepository = new InternetAnecdoteRepository(config.Anecdotes);
 
         predicates = new InputPredicateStorage();
         commands = new CommandStorage(this, config, out);
@@ -92,6 +92,8 @@ public final class AnecdoteBot implements IAnecdoteBot {
     public IAnecdote getNextAnecdote() {
         resetState();
         var anecdote = anecdoteRepository.getNextAnecdote();
+        if (anecdote == null)
+            return null;
         state = BotState.AnecdoteTold;
         if (anecdote instanceof IRatableAnecdote ratableAnecdote)
             lastAnecdote = ratableAnecdote;

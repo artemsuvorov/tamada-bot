@@ -13,6 +13,7 @@ public class RandomAnecdoteRepository implements IAnecdoteRepository {
 
     private ArrayList<IAnecdote> anecdotes;
     protected ArrayList<IAnecdote> toldAnecdotes;
+    protected ArrayList<IAnecdote> bannedAnecdotes;
 
     public RandomAnecdoteRepository(String[] anecdotes) {
         // converts string array of anecdotes to list of IAnecdotes
@@ -26,6 +27,7 @@ public class RandomAnecdoteRepository implements IAnecdoteRepository {
 
         this.anecdotes = anecdotes;
         toldAnecdotes = new ArrayList<IAnecdote>();
+        bannedAnecdotes = new ArrayList<IAnecdote>();
     }
 
     /**
@@ -55,7 +57,7 @@ public class RandomAnecdoteRepository implements IAnecdoteRepository {
     @Override
     public IAnecdote getNextAnecdote() {
         if (anecdotes.isEmpty() && toldAnecdotes.isEmpty())
-            throw new IllegalArgumentException("There are no anecdotes In repository!");
+            return null;
 
         if (anecdotes.isEmpty()) {
             anecdotes = toldAnecdotes;

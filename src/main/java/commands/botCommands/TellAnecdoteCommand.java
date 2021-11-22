@@ -19,8 +19,12 @@ public class TellAnecdoteCommand extends BotCommand {
             return printBotMessage(Config.OnNoAnecdotesMessage);
 
         var starter = Randomizer.getRandomElement(Config.AnecdoteStarters);
-        var anecdote = Bot.getNextAnecdote().getText();
-        return printBotMessage(starter + " " + anecdote);
+        var anecdote = Bot.getNextAnecdote();
+
+        if (anecdote == null)
+            return printBotMessage(Config.OnNoAnecdotesMessage);
+
+        return printBotMessage(starter + "\r\n\r\n" + anecdote.getText());
     }
 
 }

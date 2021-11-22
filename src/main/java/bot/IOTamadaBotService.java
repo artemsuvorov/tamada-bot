@@ -15,26 +15,27 @@ public class IOTamadaBotService implements IBotService {
     private static final File configFile = new File("src\\main\\resources\\tamada-config.json");
     private static final Charset defaultEncoding = StandardCharsets.UTF_8;
 
-    private final IAnecdoteBot bot;
+    protected final IAnecdoteBot Bot;
+    protected final BotConfiguration Config;
     private final PrintStream out;
     private final InputStream in;
 
     public IOTamadaBotService(PrintStream out, InputStream in) {
-        var config = BotConfiguration.deserializeBotConfig(configFile, defaultEncoding);
+        this.Config = BotConfiguration.deserializeBotConfig(configFile, defaultEncoding);
         this.out = out;
         this.in = in;
-        bot = new AnecdoteBot(config, this.out);
+        this.Bot = new AnecdoteBot(this.Config, this.out);
     }
 
     /**
      * Запускает цикл взаимодействия пользователя и бота (ввод -> парсинг -> вывод).
      */
     public void start() {
-        bot.executeCommand("/start");
+        Bot.executeCommand("/start");
         try (var scanner = new Scanner(this.in)) {
-            while (bot.isActive()) {
+            while (Bot.isActive()) {
                 var input = scanner.nextLine();
-                bot.executeCommand(input);
+                Bot.executeCommand(input);
             }
         }
     }
