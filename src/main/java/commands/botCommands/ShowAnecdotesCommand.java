@@ -17,29 +17,24 @@ public class ShowAnecdotesCommand extends BotCommand {
     }
 
     @Override
-    public void execute(UserInput input) {
-        if (!input.hasInteger()) {
-            printBotMessage(Config.OnShowNoRatingProvided);
-            return;
-        }
+    public String execute(UserInput input) {
+        if (!input.hasInteger())
+            return printBotMessage(Config.OnShowNoRatingProvided);
 
         var number = input.extractInteger();
-        if (number < 1 || number > 5) {
-            printBotMessage(Config.OnShowInvalidRatingProvided);
-            return;
-        }
+        if (number < 1 || number > 5)
+            return printBotMessage(Config.OnShowInvalidRatingProvided);
 
         var rating = Rating.fromInteger(number);
         var starter = Randomizer.getRandomElement(Config.OnShowAnecdotesMessages);
         var anecdotes = Bot.getAnecdotesOfRating(rating);
 
-        if (anecdotes == null || anecdotes.length <= 0) {
-            printBotMessage(Config.OnAnecdotesEmptyMessage);
-            return;
-        }
+        if (anecdotes == null || anecdotes.length <= 0)
+            return printBotMessage(Config.OnAnecdotesEmptyMessage);
+
         var joinedAnecdotes = Arrays.stream(anecdotes)
             .map(Object::toString).collect(Collectors.joining("\r\n\r\n"));
-        printBotMessage(starter + "\r\n\r\n" + joinedAnecdotes);
+        return printBotMessage(starter + "\r\n\r\n" + joinedAnecdotes);
     }
 
 }

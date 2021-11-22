@@ -14,9 +14,9 @@ public class NotUnderstandCommand extends BotCommand {
     }
 
     @Override
-    public void execute(UserInput input) {
+    public String execute(UserInput input) {
         var text = Randomizer.getRandomElement(Config.NotUnderstandMessages);
-        printBotMessage(text);
+        return printBotMessage(text);
     }
 
 }

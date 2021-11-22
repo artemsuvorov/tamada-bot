@@ -28,16 +28,17 @@ public abstract class BotCommand {
      * @param input входное сообщение пользователя, в котором содержится
      *              строковая команда боту.
      */
-    public abstract void execute(UserInput input);
+    public abstract String execute(UserInput input);
 
     /**
      * Вспомогательный метод, который заставляет бота
      * напечатать указанное сообщение в выходной поток данных.
      * @param text текст, который будет напечатан от имени бота.
      */
-    protected void printBotMessage(String text) {
+    protected String printBotMessage(String text) {
         var botMessage = new BotMessage(Bot.getName(), text);
         Out.println(botMessage);
+        return botMessage.toString();
     }
 
 }

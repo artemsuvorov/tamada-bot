@@ -14,15 +14,13 @@ public class TellAnecdoteCommand extends BotCommand {
     }
 
     @Override
-    public void execute(UserInput input) {
-        if (!Bot.hasAnecdotes()) {
-            printBotMessage(Config.OnNoAnecdotesMessage);
-            return;
-        }
+    public String execute(UserInput input) {
+        if (!Bot.hasAnecdotes())
+            return printBotMessage(Config.OnNoAnecdotesMessage);
 
         var starter = Randomizer.getRandomElement(Config.AnecdoteStarters);
         var anecdote = Bot.getNextAnecdote().getText();
-        printBotMessage(starter + " " + anecdote);
+        return printBotMessage(starter + " " + anecdote);
     }
 
 }

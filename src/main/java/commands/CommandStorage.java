@@ -27,10 +27,10 @@ public class CommandStorage {
         this.out = out;
 
         this.commandsByCommandNames = new HashMap<>();
-        fillCommandsByNames();
-
         startConversation = new StartConversationCommand(this.bot, this.config, this.out);
         notUnderstand = new NotUnderstandCommand(this.bot, this.config, this.out);
+
+        fillCommandsByNames();
     }
 
     /**
@@ -65,6 +65,7 @@ public class CommandStorage {
      * ставится в соответствие команда боту BotCommand.
      */
     private void fillCommandsByNames() {
+        commandsByCommandNames.put("startConversation", startConversation);
         commandsByCommandNames.put("onWhatCanYouDo", new WhatCanYouDoCommand(bot, config, out));
         commandsByCommandNames.put("introduce", new IntroduceCommand(bot, config, out));
         commandsByCommandNames.put("greet", new GreetCommand(bot, config, out));

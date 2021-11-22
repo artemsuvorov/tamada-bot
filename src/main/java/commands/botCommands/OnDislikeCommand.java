@@ -15,14 +15,12 @@ public class OnDislikeCommand extends BotCommand {
     }
 
     @Override
-    public void execute(UserInput input) {
-        if (!Bot.wasAnecdoteTold()) {
-            printBotMessage(Config.OnNoAnecdotesToRateMessage);
-            return;
-        }
+    public String execute(UserInput input) {
+        if (!Bot.wasAnecdoteTold())
+            return printBotMessage(Config.OnNoAnecdotesToRateMessage);
 
         Bot.setRatingForLastAnecdote(Rating.Dislike);
-        printBotMessage(Randomizer.getRandomElement(Config.OnDislikeRatingMessages));
+        return printBotMessage(Randomizer.getRandomElement(Config.OnDislikeRatingMessages));
     }
 
 }

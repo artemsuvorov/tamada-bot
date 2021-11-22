@@ -14,9 +14,9 @@ public class GreetCommand extends BotCommand {
     }
 
     @Override
-    public void execute(UserInput input) {
+    public String execute(UserInput input) {
         var text = Randomizer.getRandomElement(Config.Greetings);
-        printBotMessage(text);
+        return printBotMessage(text);
     }
 
 }

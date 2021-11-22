@@ -2,6 +2,7 @@ package core;
 
 import bot.IOTamadaBotService;
 import bot.TelegramBotService;
+import commands.InputPredicate;
 
 import java.util.Scanner;
 

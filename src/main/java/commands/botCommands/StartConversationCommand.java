@@ -13,9 +13,9 @@ public class StartConversationCommand extends BotCommand {
     }
 
     @Override
-    public void execute(UserInput input) {
+    public String execute(UserInput input) {
         var text = Config.ConversationStart;
-        printBotMessage(text);
+        return printBotMessage(text);
     }
 
 }

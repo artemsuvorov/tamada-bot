@@ -1,6 +1,11 @@
 package bot;
 
 import anecdote.*;
+import commands.CommandStorage;
+import commands.InputPredicateStorage;
+import commands.UserInput;
+
+import java.io.PrintStream;
 
 /**
  * Представляет собой класс бота, который может отравлять анекдоты,
@@ -11,12 +16,18 @@ public final class AnecdoteBot implements IAnecdoteBot {
     private final String name;
     private final IRatableAnecdoteRepository anecdoteRepository;
 
+    private final InputPredicateStorage predicates;
+    private final CommandStorage commands;
+
     private BotState state = BotState.Default;
     private IRatableAnecdote lastAnecdote;
 
-    public AnecdoteBot(String name, String[] anecdotes) {
-        this.name = name;
-        anecdoteRepository = new RandomRatableAnecdoteRepository(anecdotes);
+    public AnecdoteBot(BotConfiguration config, PrintStream out) {
+        this.name = config.BotName;
+        anecdoteRepository = new RandomRatableAnecdoteRepository(config.Anecdotes);
+
+        predicates = new InputPredicateStorage();
+        commands = new CommandStorage(this, config, out);
     }
 
     /**
@@ -68,6 +79,7 @@ public final class AnecdoteBot implements IAnecdoteBot {
      * @return true, если у бота еще анекдоты, которые могут быть рассказаны,
      * иначе false.
      */
+    @Override
     public boolean hasAnecdotes() {
         return anecdoteRepository.hasAnecdotes();
     }
@@ -104,10 +116,20 @@ public final class AnecdoteBot implements IAnecdoteBot {
      * если таковой есть.
      * @param rating оценка, которая будет присвоена анекдоту.
      */
+    @Override
     public void setRatingForLastAnecdote(Rating rating) {
         if (state != BotState.AnecdoteTold) return;
         lastAnecdote.setRating(rating);
         resetState();
+    }
+
+    // todo: add javadoc
+    @Override
+    public String executeCommand(String input) {
+        var commandName = predicates.getCommandNameOrNull(input);
+        var command = commands.getCommandOrNull(commandName);
+        if (command == null) command = commands.getNotUnderstandCommand();
+        return command.execute(new UserInput(input));
     }
 
     // todo: remove it later

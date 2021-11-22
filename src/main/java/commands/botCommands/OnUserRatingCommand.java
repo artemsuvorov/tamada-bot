@@ -15,27 +15,21 @@ public class OnUserRatingCommand extends BotCommand {
     }
 
     @Override
-    public void execute(UserInput input) {
-        if (!Bot.wasAnecdoteTold()) {
-            printBotMessage(Config.OnNoAnecdotesToRateMessage);
-            return;
-        }
+    public String execute(UserInput input) {
+        if (!Bot.wasAnecdoteTold())
+            return printBotMessage(Config.OnNoAnecdotesToRateMessage);
 
-        if (!input.hasInteger()) {
-            printBotMessage(Config.OnRateNoRatingProvided);
-            return;
-        }
+        if (!input.hasInteger())
+            return printBotMessage(Config.OnRateNoRatingProvided);
 
         var number = input.extractInteger();
-        if (number < 1 || number > 5) {
-            printBotMessage(Config.OnRateInvalidRatingProvided);
-            return;
-        }
+        if (number < 1 || number > 5)
+            return printBotMessage(Config.OnRateInvalidRatingProvided);
 
         var rating = Rating.fromInteger(number);
         var text = getTextForRating(rating);
         Bot.setRatingForLastAnecdote(rating);
-        printBotMessage(text);
+        return printBotMessage(text);
     }
 
     private String getTextForRating(Rating rating) {

@@ -13,9 +13,9 @@ public class WhatCanYouDoCommand extends BotCommand {
     }
 
     @Override
-    public void execute(UserInput input) {
+    public String execute(UserInput input) {
         var text = Config.HelpMessage;
-        printBotMessage(text);
+        return printBotMessage(text);
     }
 
 }

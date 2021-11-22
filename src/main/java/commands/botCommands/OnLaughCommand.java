@@ -14,9 +14,9 @@ public class OnLaughCommand extends BotCommand {
     }
 
     @Override
-    public void execute(UserInput input) {
+    public String execute(UserInput input) {
         var text = Randomizer.getRandomElement(Config.OnLaughMessages);
-        printBotMessage(text);
+        return printBotMessage(text);
     }
 
 }

@@ -68,6 +68,9 @@ public interface IAnecdoteBot {
      */
     void setRatingForLastAnecdote(Rating rating);
 
+    // todo: add javadoc
+    String executeCommand(String input);
+
     // todo: remove it later
     IRatableAnecdoteRepository getAnecdoteRepository();
 }

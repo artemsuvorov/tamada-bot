@@ -13,9 +13,9 @@ public class IntroduceCommand extends BotCommand {
     }
 
     @Override
-    public void execute(UserInput input) {
+    public String execute(UserInput input) {
         var text = Config.Introduction;
-        printBotMessage(text);
+        return printBotMessage(text);
     }
 
 }

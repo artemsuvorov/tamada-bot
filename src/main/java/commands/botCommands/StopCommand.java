@@ -14,10 +14,10 @@ public class StopCommand extends BotCommand {
     }
 
     @Override
-    public void execute(UserInput input) {
+    public String execute(UserInput input) {
         var text = Randomizer.getRandomElement(Config.StopChatMessages);
         Bot.deactivate();
-        printBotMessage(text);
+        return printBotMessage(text);
     }
 
 }

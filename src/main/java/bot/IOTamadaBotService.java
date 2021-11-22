@@ -1,9 +1,5 @@
 package bot;
 
-import commands.CommandStorage;
-import commands.InputPredicateStorage;
-import commands.UserInput;
-
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -14,50 +10,33 @@ import java.util.Scanner;
  * взаимодействия пользователя и бота (ввод -> парсинг -> вывод)
  * в предоставленных потоках входных и выходных данных.
  */
-public class IOTamadaBotService extends IOBotService {
+public class IOTamadaBotService implements IBotService {
 
     private static final File configFile = new File("src\\main\\resources\\tamada-config.json");
     private static final Charset defaultEncoding = StandardCharsets.UTF_8;
 
-    private final InputPredicateStorage predicates;
-    private final CommandStorage commands;
-
-    protected final BotConfiguration Config;
-    protected final IAnecdoteBot Bot;
+    private final IAnecdoteBot bot;
+    private final PrintStream out;
+    private final InputStream in;
 
     public IOTamadaBotService(PrintStream out, InputStream in) {
-        super(out, in);
-        Config = BotConfiguration.deserializeBotConfig(configFile, defaultEncoding);
-        Bot = new AnecdoteBot(Config.BotName, Config.Anecdotes);
-        predicates = new InputPredicateStorage();
-        commands = new CommandStorage(Bot, Config, Out);
+        var config = BotConfiguration.deserializeBotConfig(configFile, defaultEncoding);
+        this.out = out;
+        this.in = in;
+        bot = new AnecdoteBot(config, this.out);
     }
 
     /**
      * Запускает цикл взаимодействия пользователя и бота (ввод -> парсинг -> вывод).
      */
     public void start() {
-        var startConversation = commands.getStartConversationCommand();
-        startConversation.execute(UserInput.Empty);
-
-        try (var scanner = new Scanner(this.In)) {
-            while (Bot.isActive()) {
+        bot.executeCommand("/start");
+        try (var scanner = new Scanner(this.in)) {
+            while (bot.isActive()) {
                 var input = scanner.nextLine();
-                executeCommand(input);
+                bot.executeCommand(input);
             }
         }
-    }
-
-    /**
-     * Заставляет бота выполнить некоторую команду с учетом входного сообщения пользователя.
-     * @param input входное сообщение пользователя, в котором содержится
-     *              строковая команда боту.
-     */
-    private void executeCommand(String input) {
-        var commandName = predicates.getCommandNameOrNull(input);
-        var command = commands.getCommandOrNull(commandName);
-        if (command == null) command = commands.getNotUnderstandCommand();
-        command.execute(new UserInput(input));
     }
 
 }
