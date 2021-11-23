@@ -8,25 +8,20 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+// todo: add javadocs
 public class TelegramBotService extends TelegramLongPollingBot implements IBotService {
 
-    private static final File configFile = new File("src\\main\\resources\\tamada-config.json");
-    private static final Charset defaultEncoding = StandardCharsets.UTF_8;
-
-    private final BotConfiguration config;
+    private final BotConfigRepository configs;
     private final Map<Long, IAnecdoteBot> bots;
     private final PrintStream dump;
 
     public TelegramBotService() {
-        config = BotConfiguration.deserializeBotConfig(configFile, defaultEncoding);
-        bots = new HashMap();
+        configs = new BotConfigRepository();
+        bots = new HashMap<>();
         var outByteArray = new ByteArrayOutputStream();
         dump = new PrintStream(outByteArray);
     }
@@ -57,19 +52,41 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
         var currentBot = bots.get(chatId);
         if (currentBot == null) currentBot = initNewBot(chatId);
 
-        if (!currentBot.isActive()) return;
-        var text = currentBot.executeCommand(update.getMessage().getText());
+        var input = update.getMessage().getText();
+        if (!currentBot.isActive()) {
+            executeCommand(chatId, currentBot, input);
+            return;
+        }
+        var text = currentBot.executeCommand(input);
+        sendMessage(chatId, currentBot, text);
+    }
+
+    private IAnecdoteBot initNewBot(long chatId) {
+        var config = configs.getDefaultConfig();
+        var newBot = new AnecdoteBot(config, dump);
+        bots.put(chatId, newBot);
+        return newBot;
+    }
+
+    private void executeCommand(Long chatId, IAnecdoteBot bot, String input) {
+        var literals = input.split("\\s+");
+        if (literals.length <= 0 || !literals[0].equals("/start"))
+            return;
+        if (literals.length >= 2) {
+            var config = configs.getConfig(literals[1]);
+            bot.setConfig(config);
+        }
+        var text = bot.executeCommand("/start");
+        sendMessage(chatId, bot, text);
+    }
+
+    private void sendMessage(Long chatId, IAnecdoteBot bot, String text) {
+        if (text == null) text = bot.executeCommand("");
         try {
             execute(SendMessage.builder().chatId(chatId.toString()).text(text).build());
         } catch (TelegramApiException ex) {
             ex.printStackTrace();
         }
-    }
-
-    private IAnecdoteBot initNewBot(long chatId) {
-        var newBot = new AnecdoteBot(config, dump);
-        bots.put(chatId, newBot);
-        return newBot;
     }
 
 }

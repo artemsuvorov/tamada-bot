@@ -34,11 +34,17 @@ public interface IAnecdoteBot {
      */
     void resetState();
 
+    // todo: add javadoc
+    void activate();
+
     /**
      * Когда переопределен, заставляет бота деактивироваться и
      * перестать ожидать ввода пользователя.
      */
     void deactivate();
+
+    // todo: add javadoc
+    void setConfig(BotConfiguration config);
 
     /**
      * Когда переопределен, указывает есть ли у бота еще анекдоты,

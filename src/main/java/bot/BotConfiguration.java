@@ -19,8 +19,12 @@ public class BotConfiguration {
 
     /**
      * Сообщение бота при старте диалога
-      */
+     */
     public String ConversationStart;
+    /**
+     * Сообщение бота, когда пользователь просит начать диалог, но диалог уже был начат.
+     */
+    public String OnAlreadyStarted;
     /**
      * Сообщение, содержащее справку бота
       */

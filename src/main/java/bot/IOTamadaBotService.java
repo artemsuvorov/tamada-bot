@@ -12,7 +12,7 @@ import java.util.Scanner;
  */
 public class IOTamadaBotService implements IBotService {
 
-    private static final File configFile = new File("src\\main\\resources\\tamada-config.json");
+    private static final File configFile = new File("src\\main\\resources\\");
     private static final Charset defaultEncoding = StandardCharsets.UTF_8;
 
     protected final IAnecdoteBot Bot;

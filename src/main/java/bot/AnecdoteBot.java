@@ -13,21 +13,23 @@ import java.io.PrintStream;
  */
 public final class AnecdoteBot implements IAnecdoteBot {
 
-    private final String name;
+    private String name;
     private final IRatableAnecdoteRepository anecdoteRepository;
 
     private final InputPredicateStorage predicates;
-    private final CommandStorage commands;
+    private CommandStorage commands;
+    private final PrintStream out;
 
-    private BotState state = BotState.Default;
+    private BotState state = BotState.Deactivated;
     private IRatableAnecdote lastAnecdote;
 
     public AnecdoteBot(BotConfiguration config, PrintStream out) {
         this.name = config.BotName;
         anecdoteRepository = new InternetAnecdoteRepository(config.Anecdotes);
 
-        predicates = new InputPredicateStorage();
-        commands = new CommandStorage(this, config, out);
+        this.out = out;
+        this.predicates = new InputPredicateStorage();
+        this.commands = new CommandStorage(this, config, this.out);
     }
 
     /**
@@ -66,12 +68,25 @@ public final class AnecdoteBot implements IAnecdoteBot {
         state = BotState.Default;
     }
 
+    // todo: add javadoc
+    @Override
+    public void activate() {
+        state = BotState.Default;
+    }
+
     /**
      * Заставляет бота деактивироваться и перестать ожидать ввода пользователя.
      */
     @Override
     public void deactivate() {
         state = BotState.Deactivated;
+    }
+
+    // todo: add javadoc
+    @Override
+    public void setConfig(BotConfiguration config) {
+        this.name = config.BotName;
+        this.commands = new CommandStorage(this, config, this.out);
     }
 
     /**

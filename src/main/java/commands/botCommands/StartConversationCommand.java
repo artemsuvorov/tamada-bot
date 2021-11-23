@@ -14,6 +14,10 @@ public class StartConversationCommand extends BotCommand {
 
     @Override
     public String execute(UserInput input) {
+        if (Bot.isActive())
+            return printBotMessage(Config.OnAlreadyStarted);
+
+        Bot.activate();
         var text = Config.ConversationStart;
         return printBotMessage(text);
     }

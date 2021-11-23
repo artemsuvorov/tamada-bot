@@ -2,14 +2,8 @@ package core;
 
 import bot.IOTamadaBotService;
 import bot.TelegramBotService;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
-import org.xml.sax.SAXException;
 
 import java.util.Scanner;
-import java.util.regex.Pattern;
 
 public class Main {
 
@@ -17,7 +11,7 @@ public class Main {
      * Основная точка входа в программу.
      * @param args Аргументы, задаваемые при запуске программы.
      */
-    public static void main(String[] args) throws SAXException {
+    public static void main(String[] args) {
         runTelegramBot();
     }
 
