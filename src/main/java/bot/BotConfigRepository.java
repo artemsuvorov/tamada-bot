@@ -27,11 +27,13 @@ public class BotConfigRepository {
             case "тамада":
             default:
                 return "tamada-config.json";
+
             case "веселый тамада":
             case "веселый":
             case "весёлый тамада":
             case "весёлый":
                 return "tamad-happyСonfig.json";
+
             case "грустный":
             case "грустный тамада":
                 return "tamada-sedСonfig.json";

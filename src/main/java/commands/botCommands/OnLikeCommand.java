@@ -2,6 +2,7 @@ package commands.botCommands;
 
 import anecdote.Rating;
 import bot.BotConfiguration;
+import bot.BotState;
 import bot.IAnecdoteBot;
 import commands.UserInput;
 import utils.Randomizer;
@@ -16,7 +17,7 @@ public class OnLikeCommand extends BotCommand {
 
     @Override
     public String execute(UserInput input) {
-        if (!Bot.wasAnecdoteTold())
+        if (Bot.getState() != BotState.AnecdoteTold)
             return printBotMessage(Config.OnNoAnecdotesToRateMessage);
 
         Bot.setRatingForLastAnecdote(Rating.Excellent);

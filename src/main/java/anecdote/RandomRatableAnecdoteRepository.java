@@ -76,7 +76,10 @@ public class RandomRatableAnecdoteRepository
                 listenRatableAnecdote(ratableAnecdote);
     }
 
-    // todo: add javadoc
+    /**
+     * Подписывает этот репозиторий на прослушивание изменения оценки у указанного анекдота.
+     * @param anecdote анекдот, чья оценка будет прослушиваться.
+     */
     protected void listenRatableAnecdote(IRatableAnecdote anecdote) {
         anecdote.addListener(this);
     }

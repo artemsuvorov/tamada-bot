@@ -12,8 +12,15 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
-// todo: add javadocs
+/**
+ * Представляет собой класс, который организует цикл
+ * взаимодействия пользователя и бота (ввод -> парсинг -> вывод)
+ * посредством использования API TelegramBots.
+ */
 public class TelegramBotService extends TelegramLongPollingBot implements IBotService {
+
+    private final static String botToken = "2111079902:AAFpPaiiQpZnT3K0Lm5hArMaiEmyWi2nxdI";
+    private final static String botUsername = "@tamada_ru_bot";
 
     private final BotConfigRepository configs;
     private final Map<Long, IAnecdoteBot> bots;
@@ -26,6 +33,10 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
         dump = new PrintStream(outByteArray);
     }
 
+    /**
+     * Запускает в отдельном потоке цикл взаимодействия
+     * пользователя и бота (ввод -> парсинг -> вывод).
+     */
     @Override
     public void start() {
         try {
@@ -36,31 +47,52 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
         }
     }
 
+    /**
+     * Возвращает имя пользователя (Username) Telegram-бота.
+     * @return имя пользователя (Username) Telegram-бота.
+     */
     @Override
     public String getBotUsername() {
-        return "@tamada_ru_bot";
+        return botUsername;
     }
 
+    /**
+     * Возвращает токен Telegram-бота.
+     * @return токен Telegram-бота.
+     */
     @Override
     public String getBotToken() {
-        return "2111079902:AAFpPaiiQpZnT3K0Lm5hArMaiEmyWi2nxdI";
+        return botToken;
     }
 
+    /**
+     * Метод, вызываемый каждый раз, когда Telegram-боту приходит обновление Update.
+     * @param update обновление, которое будет обработано.
+     */
     @Override
     public void onUpdateReceived(Update update) {
+        if (update.getMessage() == null)
+            return;
+
         var chatId = update.getMessage().getChatId();
         var currentBot = bots.get(chatId);
         if (currentBot == null) currentBot = initNewBot(chatId);
 
         var input = update.getMessage().getText();
         if (!currentBot.isActive()) {
-            executeCommand(chatId, currentBot, input);
+            activateBot(chatId, currentBot, input);
             return;
         }
+
         var text = currentBot.executeCommand(input);
-        sendMessage(chatId, currentBot, text);
+        sendBotMessage(chatId, text);
     }
 
+    /**
+     * Инициализирует и возвращает нового бота IAnecdoteBot, а также кэширует его в хэш-мап.
+     * @param chatId id Telegram-чата, по которому будет создан новый бот.
+     * @return Возвращает нового бота IAnecdoteBot.
+     */
     private IAnecdoteBot initNewBot(long chatId) {
         var config = configs.getDefaultConfig();
         var newBot = new AnecdoteBot(config, dump);
@@ -68,20 +100,34 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
         return newBot;
     }
 
-    private void executeCommand(Long chatId, IAnecdoteBot bot, String input) {
+    /**
+     * Активирует указанного бота по указанному id Telegram-чата,
+     * если таковая команда активации содержится в указанной строке ввода.
+     * @param chatId id Telegram-чата, с которым связан бот.
+     * @param bot бот, который будет активирован, если так указано в строке ввода.
+     * @param input строка ввода, которая содержит или не содержит
+     *              команду активации бота и все передаваемые аргументы.
+     */
+    private void activateBot(Long chatId, IAnecdoteBot bot, String input) {
         var literals = input.split("\\s+");
         if (literals.length <= 0 || !literals[0].equals("/start"))
             return;
-        if (literals.length >= 2) {
-            var config = configs.getConfig(literals[1]);
-            bot.setConfig(config);
-        }
+        var config = configs.getDefaultConfig();
+        if (literals.length >= 2)
+            config = configs.getConfig(literals[1]);
+        bot.setConfig(config);
         var text = bot.executeCommand("/start");
-        sendMessage(chatId, bot, text);
+        sendBotMessage(chatId, text);
     }
 
-    private void sendMessage(Long chatId, IAnecdoteBot bot, String text) {
-        if (text == null) text = bot.executeCommand("");
+    /**
+     * Отправляет непустое сообщение в Telegram-чат по указанному id чата.
+     * @param chatId id Telegram-чата, в который будет отправлено сообщение.
+     * @param text текст сообщения, которое будет оправлено в Telegram-чат.
+     */
+    private void sendBotMessage(Long chatId, String text) {
+        if (text == null || text.isBlank())
+            return;
         try {
             execute(SendMessage.builder().chatId(chatId.toString()).text(text).build());
         } catch (TelegramApiException ex) {

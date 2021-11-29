@@ -21,7 +21,7 @@ public class ShowAnecdotesCommand extends BotCommand {
         if (!input.hasInteger())
             return printBotMessage(Config.OnShowNoRatingProvided);
 
-        var number = input.extractInteger();
+        var number = input.getNextInteger();
         if (number < 1 || number > 5)
             return printBotMessage(Config.OnShowInvalidRatingProvided);
 

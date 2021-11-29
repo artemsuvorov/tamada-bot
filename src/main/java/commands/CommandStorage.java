@@ -76,6 +76,7 @@ public class CommandStorage {
         commandsByCommandNames.put("onRatingSubmitted_Like", new OnLikeCommand(bot, config, out));
         commandsByCommandNames.put("onRatingSubmitted_Dislike", new OnDislikeCommand(bot, config, out));
         commandsByCommandNames.put("onRatingSubmitted", new OnUserRatingCommand(bot, config, out));
+        commandsByCommandNames.put("onEndingSuggested", new OnSuggestEndingCommand(bot, config, out));
         commandsByCommandNames.put("showAnecdotesOfRating", new ShowAnecdotesCommand(bot, config, out));
         commandsByCommandNames.put("deactivate", new StopCommand(bot, config, out));
     }

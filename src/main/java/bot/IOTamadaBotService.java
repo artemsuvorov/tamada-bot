@@ -12,16 +12,14 @@ import java.util.Scanner;
  */
 public class IOTamadaBotService implements IBotService {
 
-    private static final File configFile = new File("src\\main\\resources\\");
-    private static final Charset defaultEncoding = StandardCharsets.UTF_8;
-
     protected final IAnecdoteBot Bot;
     protected final BotConfiguration Config;
     private final PrintStream out;
     private final InputStream in;
 
     public IOTamadaBotService(PrintStream out, InputStream in) {
-        this.Config = BotConfiguration.deserializeBotConfig(configFile, defaultEncoding);
+        var configs = new BotConfigRepository();
+        this.Config = configs.getDefaultConfig();
         this.out = out;
         this.in = in;
         this.Bot = new AnecdoteBot(this.Config, this.out);

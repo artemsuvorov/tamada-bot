@@ -2,6 +2,7 @@ package commands.botCommands;
 
 import anecdote.Rating;
 import bot.BotConfiguration;
+import bot.BotState;
 import bot.IAnecdoteBot;
 import commands.UserInput;
 import utils.Randomizer;
@@ -16,13 +17,13 @@ public class OnUserRatingCommand extends BotCommand {
 
     @Override
     public String execute(UserInput input) {
-        if (!Bot.wasAnecdoteTold())
+        if (Bot.getState() != BotState.AnecdoteTold)
             return printBotMessage(Config.OnNoAnecdotesToRateMessage);
 
         if (!input.hasInteger())
             return printBotMessage(Config.OnRateNoRatingProvided);
 
-        var number = input.extractInteger();
+        var number = input.getNextInteger();
         if (number < 1 || number > 5)
             return printBotMessage(Config.OnRateInvalidRatingProvided);
 

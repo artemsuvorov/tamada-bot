@@ -53,6 +53,7 @@ public class InputPredicateStorage {
         predicatesByCommandName.put("onRatingSubmitted_Like", new InputPredicate().has("нрав").and().not().has("не"));
         predicatesByCommandName.put("onRatingSubmitted_Dislike", new InputPredicate().all("не", "нрав"));
         predicatesByCommandName.put("onRatingSubmitted", new InputPredicate().has("оцен"));
+        predicatesByCommandName.put("onEndingSuggested", new InputPredicate().any("предложить", "предлагаю", "концовка"));
         predicatesByCommandName.put("showAnecdotesOfRating", new InputPredicate().any("покажи", "показать"));
         predicatesByCommandName.put("deactivate", new InputPredicate().any("хватит", "стоп", "до свидания"));
     }

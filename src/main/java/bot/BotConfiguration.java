@@ -49,9 +49,9 @@ public class BotConfiguration {
       */
     public String[] AnecdoteStarters;
     /**
-     * Массив анекдотов бота
-      */
-    public String[] Anecdotes;
+     * Сообщение бота, предваряющее неоконченный анекдот.
+     */
+    public String OnTellUnfinishedAnecdote;
 
     /**
      * Сообщение бота с предложением оценить анекдот
@@ -92,6 +92,19 @@ public class BotConfiguration {
      * Сообщение бота, когда пользователь указал некорректную оценку при оценивании анекдота
      */
     public String OnRateInvalidRatingProvided;
+
+    /**
+     * Сообщения бота, когда была успешно предложена концовка к предыдущему анекдоту
+     */
+    public String[] OnEndingSuggested;
+    /**
+     * Сообщение бота, когда нет анекдота, к которому можно было бы добавить концовку
+     */
+    public String OnNoAnecdotesToSuggest;
+    /**
+     * Сообщение бота, когда пользователь ввел некорректную концовку
+     */
+    public String OnInvalidSuggestion;
 
     /**
      * Сообщение бота, когда пользователь не указал оценку при

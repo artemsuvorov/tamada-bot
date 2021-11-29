@@ -4,6 +4,7 @@ import anecdote.*;
 import commands.CommandStorage;
 import commands.InputPredicateStorage;
 import commands.UserInput;
+import commands.botCommands.BotCommand;
 
 import java.io.PrintStream;
 
@@ -21,11 +22,11 @@ public final class AnecdoteBot implements IAnecdoteBot {
     private final PrintStream out;
 
     private BotState state = BotState.Deactivated;
-    private IRatableAnecdote lastAnecdote;
+    private IAnecdote lastAnecdote;
 
     public AnecdoteBot(BotConfiguration config, PrintStream out) {
         this.name = config.BotName;
-        anecdoteRepository = new InternetAnecdoteRepository(config.Anecdotes);
+        anecdoteRepository = new InternetAnecdoteRepository();
 
         this.out = out;
         this.predicates = new InputPredicateStorage();
@@ -52,12 +53,12 @@ public final class AnecdoteBot implements IAnecdoteBot {
     }
 
     /**
-     * Указывает, был ли прежде рассказан анекдот.
-     * @return true, если анекдот был прежде рассказан, иначе false.
+     * Возвращает текущее состояние бота BotState.
+     * @return Текущее состояние бота BotState.
      */
     @Override
-    public boolean wasAnecdoteTold() {
-        return state == BotState.AnecdoteTold;
+    public BotState getState() {
+        return state;
     }
 
     /**
@@ -68,21 +69,26 @@ public final class AnecdoteBot implements IAnecdoteBot {
         state = BotState.Default;
     }
 
-    // todo: add javadoc
+    /**
+     * Заставляет бота активироваться.
+     */
     @Override
     public void activate() {
         state = BotState.Default;
     }
 
     /**
-     * Заставляет бота деактивироваться и перестать ожидать ввода пользователя.
+     * Заставляет бота деактивироваться.
      */
     @Override
     public void deactivate() {
         state = BotState.Deactivated;
     }
 
-    // todo: add javadoc
+    /**
+     * Устанавливает новую конфигурацию боту, которая содержит все его сообщения.
+     * @param config новая конфигурация боту, которая содержит все его сообщения.
+     */
     @Override
     public void setConfig(BotConfiguration config) {
         this.name = config.BotName;
@@ -112,6 +118,8 @@ public final class AnecdoteBot implements IAnecdoteBot {
         state = BotState.AnecdoteTold;
         if (anecdote instanceof IRatableAnecdote ratableAnecdote)
             lastAnecdote = ratableAnecdote;
+        if (anecdote instanceof UnfinishedAnecdote unfinished && !unfinished.hasEnding())
+            state = BotState.UnfinishedAnecdoteTold;
         return anecdote;
     }
 
@@ -136,16 +144,43 @@ public final class AnecdoteBot implements IAnecdoteBot {
     @Override
     public void setRatingForLastAnecdote(Rating rating) {
         if (state != BotState.AnecdoteTold) return;
-        lastAnecdote.setRating(rating);
+        ((RatableAnecdote)lastAnecdote).setRating(rating);
         resetState();
     }
 
-    // todo: add javadoc
+    /**
+     * Когда переопределен, дописывает указанную концовку
+     * последнему рассказанному анекдоту, если таковой есть,
+     * и возвращает получившийся анекдот в виде строки.
+     * @param ending концовка, которая будет дописана анекдоту.
+     * @return Анекдот с новой концовкой в виде строки.
+     */
+    @Override
+    public String setEndingForLastAnecdote(String ending) {
+        if (state != BotState.UnfinishedAnecdoteTold)
+            return null;
+        ((UnfinishedAnecdote)lastAnecdote).setEnding(ending);
+        var resultingAnecdote = lastAnecdote.getText();
+        resetState();
+        state = BotState.AnecdoteTold;
+        return resultingAnecdote;
+    }
+
+    /**
+     * Заставляет бота исполнить команду, содержащуюся в указанной строке ввода,
+     * и возвращает строку, содержащую сообщение результата.
+     * @param input строка ввода, которая содержит команду и передаваемые аргументы.
+     * @return Строку, содержащая сообщение результата.
+     */
     @Override
     public String executeCommand(String input) {
+        if (input == null)
+            return  commands.getNotUnderstandCommand().execute(UserInput.Empty);
+
         var commandName = predicates.getCommandNameOrNull(input);
         var command = commands.getCommandOrNull(commandName);
         if (command == null) command = commands.getNotUnderstandCommand();
+
         return command.execute(new UserInput(input));
     }
 

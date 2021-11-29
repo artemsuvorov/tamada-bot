@@ -1,3 +1,4 @@
+import anecdote.AnecdotesConfiguration;
 import bot.BotConfiguration;
 import bot.IAnecdoteBot;
 
@@ -38,7 +39,7 @@ public class TamadaBotTests {
                 стоп
                 """;
         executeUserCommands(input);
-        var expected = config.Anecdotes.length-1;
+        var expected = AnecdotesConfiguration.deserializeAnecdotesConfig().getTotalCount();
         var actualLength = bot.getAnecdoteRepository().getCount();
         assertEqualsOnBot(expected, actualLength);
     }
