@@ -1,4 +1,4 @@
-import Bot.*;
+import bot.*;
 
 import java.io.InputStream;
 import java.io.PrintStream;

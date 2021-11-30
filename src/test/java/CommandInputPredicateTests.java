@@ -1,4 +1,4 @@
-import Commands.InputPredicate;
+import commands.InputPredicate;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
 

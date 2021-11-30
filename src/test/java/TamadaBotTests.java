@@ -1,8 +1,7 @@
-import Bot.BotConfiguration;
-import Bot.IOTamadaBotService;
-import Bot.IAnecdoteBot;
+import anecdote.AnecdotesConfiguration;
+import bot.BotConfiguration;
+import bot.IAnecdoteBot;
 
-import Bot.IBotService;
 import org.junit.jupiter.api.*;
 
 import java.io.*;
@@ -40,7 +39,7 @@ public class TamadaBotTests {
                 стоп
                 """;
         executeUserCommands(input);
-        var expected = config.Anecdotes.length-1;
+        var expected = AnecdotesConfiguration.deserializeAnecdotesConfig().getTotalCount();
         var actualLength = bot.getAnecdoteRepository().getCount();
         assertEqualsOnBot(expected, actualLength);
     }
