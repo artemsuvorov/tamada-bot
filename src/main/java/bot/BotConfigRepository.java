@@ -9,20 +9,16 @@ public class BotConfigRepository {
     private static final File configDirectory = new File("src\\main\\resources\\");
     private static final Charset defaultEncoding = StandardCharsets.UTF_8;
 
-    public BotConfigRepository() {
-
-    }
-
-    public BotConfiguration getDefaultConfig() {
+    public static BotConfiguration getDefaultConfig() {
         return getConfig("tamada-config.json");
     }
 
-    public BotConfiguration getConfig(String configName) {
+    public static BotConfiguration getConfig(String configName) {
         var configFile = new File(configDirectory, getConfigFileName(configName));
         return BotConfiguration.deserializeBotConfig(configFile, defaultEncoding);
     }
 
-    private String getConfigFileName(String configName) {
+    private static String getConfigFileName(String configName) {
         switch (configName) {
             case "тамада":
             default:

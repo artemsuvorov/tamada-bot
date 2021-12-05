@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
  * Анекдоты такого репозитория поддерживают оценивание и добавление концовки.
  */
 public class InternetAnecdoteRepository extends RandomRatableUnfinishedAnecdoteRepository {
+    // todo: serialize when bot stopped
 
     private final String uri = "http://rzhunemogu.ru/Rand.aspx?CType=1";
     private final int requestTimeout = 1500;
@@ -39,6 +40,7 @@ public class InternetAnecdoteRepository extends RandomRatableUnfinishedAnecdoteR
 
     @Override
     public IAnecdote getNextAnecdote() {
+        // todo: prevent from collisions
         try {
             if (pickNextFromInternet())
                 return getAnecdoteFrom(uri);
