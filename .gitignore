@@ -29,4 +29,5 @@ out/
 target/
 
 # Private
-/resources/token.txt
+src/resources/token.txt
+src/resources/chats/
