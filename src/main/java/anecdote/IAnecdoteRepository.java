@@ -1,9 +1,11 @@
 package anecdote;
 
+import java.io.Serializable;
+
 /**
  * Определяет интерфейс репозитория анекдотов, который выдает анекдоты один за другим.
  */
-public interface IAnecdoteRepository {
+public interface IAnecdoteRepository extends Serializable {
 
     /**
      * Когда переопределен, возвращает количество анекдотов,
@@ -22,6 +24,6 @@ public interface IAnecdoteRepository {
      * Когда переопределен, возвращает следующий анекдот из этого репозитория.
      * @return Следующий анекдот из этого репозитория.
      */
-    IAnecdote getNextAnecdote();
+    Anecdote getNextAnecdote();
 
 }

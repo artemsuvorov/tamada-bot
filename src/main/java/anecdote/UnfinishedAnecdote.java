@@ -6,11 +6,17 @@ package anecdote;
  */
 public class UnfinishedAnecdote extends RatableAnecdote {
 
-    private String ending;
-    private final String gapIndicator = ".............";
+    private final static String gapIndicator = ".............";
+
+    private String ending = "";
+
+    public UnfinishedAnecdote(String anecdote, Rating rating, String ending) {
+        super(anecdote, rating);
+        this.ending = ending;
+    }
 
     public UnfinishedAnecdote(String anecdote) {
-        super(anecdote);
+        this(anecdote, Rating.None, null);
     }
 
     /**
@@ -19,6 +25,15 @@ public class UnfinishedAnecdote extends RatableAnecdote {
      */
     public boolean hasEnding() {
         return ending != null && !ending.isBlank();
+    }
+
+    /**
+     * Возвращает дописанную концовку анекдота, если таковая есть.
+     * По умолчанию, концовка анекдота - это пустая строка.
+     * @return Возвращает концовку анекдота.
+     */
+    public String getEnding() {
+        return this.ending;
     }
 
     /**

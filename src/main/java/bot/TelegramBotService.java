@@ -7,15 +7,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Представляет собой класс, который организует цикл
@@ -28,13 +24,12 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
     private static String botToken = null;
     private final static Path tokenFilePath = Paths.get("src\\main\\resources\\token.txt");
 
-    private final Map<Long, IAnecdoteBot> bots;
-    private final PrintStream dump;
+    private final TelegramChatBots bots;
+    private final JsonChatBotsSerializer serializer;
 
     public TelegramBotService() {
-        bots = new HashMap<>();
-        var outByteArray = new ByteArrayOutputStream();
-        dump = new PrintStream(outByteArray);
+        serializer = new JsonChatBotsSerializer();
+        bots = serializer.deserializeAll();
     }
 
     /**
@@ -74,8 +69,8 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
         }
         catch (IOException ex) {
             ex.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     /**
@@ -88,8 +83,7 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
             return;
 
         var chatId = update.getMessage().getChatId();
-        var currentBot = bots.get(chatId);
-        if (currentBot == null) currentBot = initNewBot(chatId);
+        var currentBot = bots.getOrAdd(chatId);
 
         var input = update.getMessage().getText();
         if (!currentBot.isActive() && !input.contains("старт"))
@@ -97,18 +91,8 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
 
         var text = currentBot.executeCommand(input);
         sendBotMessage(chatId, text);
-    }
 
-    /**
-     * Инициализирует и возвращает нового бота IAnecdoteBot, а также кэширует его в хэш-мап.
-     * @param chatId id Telegram-чата, по которому будет создан новый бот.
-     * @return Возвращает нового бота IAnecdoteBot.
-     */
-    private IAnecdoteBot initNewBot(long chatId) {
-        var config = BotConfigRepository.getDefaultConfig();
-        var newBot = new AnecdoteBot(config, dump);
-        bots.put(chatId, newBot);
-        return newBot;
+        serializer.serializeBot(chatId, currentBot);
     }
 
     /**

@@ -1,11 +1,10 @@
 package anecdote;
 
+import com.google.gson.Gson;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -15,21 +14,27 @@ import java.util.stream.Collectors;
 public class RandomRatableAnecdoteRepository
         extends RandomAnecdoteRepository implements IRatableAnecdoteRepository, PropertyChangeListener {
 
-    private final Dictionary<Rating, ArrayList<IAnecdote>> ratedAnecdotes;
+    protected Map<Rating, ArrayList<Anecdote>> ratedAnecdotes;
+
+    public RandomRatableAnecdoteRepository(ArrayList<Anecdote> anecdotes, ArrayList<Anecdote> toldAnecdotes,
+        ArrayList<Anecdote> bannedAnecdotes, Map<Rating, ArrayList<Anecdote>> ratedAnecdotes) {
+        super(anecdotes, toldAnecdotes, bannedAnecdotes);
+        this.ratedAnecdotes = ratedAnecdotes;
+    }
 
     public RandomRatableAnecdoteRepository(String[] anecdotes) {
         // converts string array of anecdotes to list of IAnecdotes
-        this((ArrayList<IAnecdote>)new ArrayList<String>(Arrays.asList(anecdotes))
-            .stream().map(x->(IAnecdote)new RatableAnecdote(x)).collect(Collectors.toList()));
+        this((ArrayList<Anecdote>)new ArrayList<String>(Arrays.asList(anecdotes))
+            .stream().map(x->(Anecdote)new RatableAnecdote(x)).collect(Collectors.toList()));
     }
 
-    public RandomRatableAnecdoteRepository(ArrayList<IAnecdote> anecdotes) {
+    public RandomRatableAnecdoteRepository(ArrayList<Anecdote> anecdotes) {
         super(anecdotes);
         listenRatableAnecdotes(anecdotes);
 
-        ratedAnecdotes = new Hashtable<Rating, ArrayList<IAnecdote>>();
+        ratedAnecdotes = new HashMap();
         for (var rating : Rating.values()) {
-            ratedAnecdotes.put(rating, new ArrayList<IAnecdote>());
+            ratedAnecdotes.put(rating, new ArrayList<Anecdote>());
         }
     }
 
@@ -38,7 +43,7 @@ public class RandomRatableAnecdoteRepository
      * @return Список любимых анекдотов.
      */
     @Override
-    public IAnecdote[] getFavorites() {
+    public Anecdote[] getFavorites() {
         return getAnecdotesOfRating(Rating.Excellent);
     }
 
@@ -48,8 +53,8 @@ public class RandomRatableAnecdoteRepository
      * @return Список анекдотов, имеющих указанную оценку.
      */
     @Override
-    public IAnecdote[] getAnecdotesOfRating(Rating rating) {
-        return ratedAnecdotes.get(rating).toArray(new IAnecdote[0]);
+    public Anecdote[] getAnecdotesOfRating(Rating rating) {
+        return ratedAnecdotes.get(rating).toArray(new Anecdote[0]);
     }
 
     /**
@@ -60,7 +65,7 @@ public class RandomRatableAnecdoteRepository
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getSource() instanceof IRatableAnecdote anecdote && evt.getPropertyName() == "rating")
+        if (evt.getSource() instanceof RatableAnecdote anecdote && evt.getPropertyName() == "rating")
             if (evt.getOldValue() instanceof Rating oldRating && evt.getNewValue() instanceof Rating newRating)
                 onAnecdoteRatingChanged(anecdote, oldRating, newRating);
     }
@@ -70,7 +75,7 @@ public class RandomRatableAnecdoteRepository
      * оценки у каждого из указанных анекдотов.
      * @param anecdotes анекдоты, чьи оценки будут прослушиваться.
      */
-    protected void listenRatableAnecdotes(ArrayList<IAnecdote> anecdotes) {
+    protected void listenRatableAnecdotes(ArrayList<Anecdote> anecdotes) {
         for (var anecdote : anecdotes)
             if (anecdote instanceof IRatableAnecdote ratableAnecdote)
                 listenRatableAnecdote(ratableAnecdote);
@@ -93,7 +98,7 @@ public class RandomRatableAnecdoteRepository
      * @param oldRating предыдущая оценка анекдота.
      * @param newRating новая оценка анекдота.
      */
-    private void onAnecdoteRatingChanged(IAnecdote anecdote, Rating oldRating, Rating newRating) {
+    private void onAnecdoteRatingChanged(Anecdote anecdote, Rating oldRating, Rating newRating) {
         if (oldRating != newRating) {
             ratedAnecdotes.get(newRating).add(anecdote);
             if (oldRating != Rating.None)

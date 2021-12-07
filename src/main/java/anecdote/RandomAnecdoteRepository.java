@@ -1,8 +1,10 @@
 package anecdote;
 
+import com.google.gson.Gson;
 import utils.Randomizer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -11,23 +13,30 @@ import java.util.stream.Collectors;
  */
 public class RandomAnecdoteRepository implements IAnecdoteRepository {
 
-    private ArrayList<IAnecdote> anecdotes;
-    protected ArrayList<IAnecdote> toldAnecdotes;
-    protected ArrayList<IAnecdote> bannedAnecdotes;
+    protected ArrayList<Anecdote> anecdotes;
+    protected ArrayList<Anecdote> toldAnecdotes;
+    protected ArrayList<Anecdote> bannedAnecdotes;
+
+    public RandomAnecdoteRepository(ArrayList<Anecdote> anecdotes,
+        ArrayList<Anecdote> toldAnecdotes, ArrayList<Anecdote> bannedAnecdotes) {
+        this.anecdotes = anecdotes;
+        this.toldAnecdotes = toldAnecdotes;
+        this.bannedAnecdotes = bannedAnecdotes;
+    }
 
     public RandomAnecdoteRepository(String[] anecdotes) {
         // converts string array of anecdotes to list of IAnecdotes
-        this((ArrayList<IAnecdote>)new ArrayList<String>(Arrays.asList(anecdotes))
-            .stream().map(x->(IAnecdote)new Anecdote(x)).collect(Collectors.toList()));
+        this((ArrayList<Anecdote>)new ArrayList<String>(Arrays.asList(anecdotes))
+            .stream().map(x->new Anecdote(x)).collect(Collectors.toList()));
     }
 
-    public RandomAnecdoteRepository(ArrayList<IAnecdote> anecdotes) {
+    public RandomAnecdoteRepository(ArrayList<Anecdote> anecdotes) {
         if (anecdotes == null || anecdotes.isEmpty())
             throw new IllegalArgumentException("Anecdotes collection cannot be null or empty.");
 
         this.anecdotes = anecdotes;
-        toldAnecdotes = new ArrayList<IAnecdote>();
-        bannedAnecdotes = new ArrayList<IAnecdote>();
+        toldAnecdotes = new ArrayList<Anecdote>();
+        bannedAnecdotes = new ArrayList<Anecdote>();
     }
 
     /**
@@ -55,13 +64,13 @@ public class RandomAnecdoteRepository implements IAnecdoteRepository {
      * @return Случайный анекдот из набора еще не рассказанных анекдотов.
      */
     @Override
-    public IAnecdote getNextAnecdote() {
+    public Anecdote getNextAnecdote() {
         if (anecdotes.isEmpty() && toldAnecdotes.isEmpty())
             return null;
 
         if (anecdotes.isEmpty()) {
             anecdotes = toldAnecdotes;
-            toldAnecdotes = new ArrayList<IAnecdote>();
+            toldAnecdotes = new ArrayList<Anecdote>();
         }
 
         return getRandomAnecdote();
@@ -72,7 +81,7 @@ public class RandomAnecdoteRepository implements IAnecdoteRepository {
      * и удаляет его из этого набора.
      * @return Случайный анекдот из набора еще не рассказанных анекдотов.
      */
-    protected IAnecdote getRandomAnecdote() {
+    protected Anecdote getRandomAnecdote() {
         var index = Randomizer.getRandomNumber(anecdotes.size());
         var anecdote = anecdotes.get(index);
         anecdotes.remove(index);

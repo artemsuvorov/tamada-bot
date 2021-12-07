@@ -1,6 +1,7 @@
 package bot;
 
 import anecdote.*;
+import com.google.gson.annotations.Expose;
 import commands.CommandStorage;
 import commands.InputPredicateStorage;
 import commands.UserInput;
@@ -14,15 +15,17 @@ import java.io.PrintStream;
  */
 public final class AnecdoteBot implements IAnecdoteBot {
 
+    @Expose
     private String name;
-    private final IRatableAnecdoteRepository anecdoteRepository;
+    @Expose
+    private InternetAnecdoteRepository anecdoteRepository;
 
     private final InputPredicateStorage predicates;
     private CommandStorage commands;
     private final PrintStream out;
 
     private BotState state = BotState.Deactivated;
-    private IAnecdote lastAnecdote;
+    private Anecdote lastAnecdote;
 
     public AnecdoteBot(BotConfiguration config, PrintStream out) {
         this.name = config.BotName;
@@ -110,13 +113,13 @@ public final class AnecdoteBot implements IAnecdoteBot {
      * @return Анекдот.
      */
     @Override
-    public IAnecdote getNextAnecdote() {
+    public Anecdote getNextAnecdote() {
         resetState();
         var anecdote = anecdoteRepository.getNextAnecdote();
         if (anecdote == null)
             return null;
         state = BotState.AnecdoteTold;
-        if (anecdote instanceof IRatableAnecdote ratableAnecdote)
+        if (anecdote instanceof RatableAnecdote ratableAnecdote)
             lastAnecdote = ratableAnecdote;
         if (anecdote instanceof UnfinishedAnecdote unfinished && !unfinished.hasEnding())
             state = BotState.UnfinishedAnecdoteTold;
@@ -128,7 +131,7 @@ public final class AnecdoteBot implements IAnecdoteBot {
      * @return Массив анекдотов, которые имеют указанную оценку.
      */
     @Override
-    public IAnecdote[] getAnecdotesOfRating(Rating rating) {
+    public Anecdote[] getAnecdotesOfRating(Rating rating) {
         resetState();
         var anecdotes = anecdoteRepository.getAnecdotesOfRating(rating);
         if (anecdotes == null || anecdotes.length <= 0)
@@ -182,6 +185,28 @@ public final class AnecdoteBot implements IAnecdoteBot {
         if (command == null) command = commands.getNotUnderstandCommand();
 
         return command.execute(new UserInput(input));
+    }
+
+    /**
+     * Сереализует этого бота, сохраняя его данные в формате Json в строку String.
+     * Подлежащие сериализации данные бота - это содержание его репозитория анекдотов.
+     * @return Строку String, содержащую данные сериализованного бота в формате Json.
+     */
+    @Override
+    public String serialize() {
+        return anecdoteRepository.serialize();
+    }
+
+    /**
+     * Десереализует бота и перезаписывает поля этого бота
+     * новыми данными из указанных данных, переданных в виде строки String.
+     * Подлежащие десериализации данные бота - это содержание его репозитория анекдотов.
+     * @param json Строка, содержащая сериализованного бота, чьи данные будут
+     *             десериализованы и присвоены этому боту.
+     */
+    @Override
+    public void deserialize(String json) {
+        anecdoteRepository = anecdoteRepository.deserialize(json);
     }
 
     // todo: remove it later

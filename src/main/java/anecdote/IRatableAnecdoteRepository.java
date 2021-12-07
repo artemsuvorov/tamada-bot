@@ -9,13 +9,13 @@ public interface IRatableAnecdoteRepository extends IAnecdoteRepository {
      * Когда переопределен, возвращает список любимых анекдотов.
      * @return Список любимых анекдотов.
      */
-    IAnecdote[] getFavorites();
+    Anecdote[] getFavorites();
 
     /**
      * Когда переопределен, возвращает список анекдотов, имеющих указанную оценку.
      * @param rating оценка, которую имеют анекдоты.
      * @return Список анекдотов, имеющих указанную оценку.
      */
-    IAnecdote[] getAnecdotesOfRating(Rating rating);
+    Anecdote[] getAnecdotesOfRating(Rating rating);
 
 }

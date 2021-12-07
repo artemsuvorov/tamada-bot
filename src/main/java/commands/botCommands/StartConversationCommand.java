@@ -16,17 +16,21 @@ public class StartConversationCommand extends BotCommand {
 
     @Override
     public String execute(UserInput input) {
+        if (!Bot.isActive() && !input.hasArguments()) {
+            Bot.activate();
+            return printBotMessage(Config.ConversationStart);
+        }
+
         if (Bot.isActive() && !input.hasArguments())
             return printBotMessage(Config.OnAlreadyStarted);
 
+        Bot.activate();
         var config = getConfigFrom(input);
         if (config.BotName.equals(Config.BotName))
             return printBotMessage(Config.OnAlreadyStarted);
-
         Bot.setConfig(config);
-        Bot.activate();
-        var text = config.ConversationStart;
-        return printBotMessage(text);
+
+        return printBotMessage(config.ConversationStart);
     }
 
     private BotConfiguration getConfigFrom(UserInput input) {
