@@ -1,6 +1,6 @@
 package bot;
 
-import anecdote.IAnecdote;
+import anecdote.Anecdote;
 import anecdote.IRatableAnecdoteRepository;
 import anecdote.Rating;
 
@@ -63,14 +63,14 @@ public interface IAnecdoteBot {
      * Когда переопределен, возвращает следующий анекдот.
      * @return Анекдот.
      */
-    IAnecdote getNextAnecdote();
+    Anecdote getNextAnecdote();
 
     /**
      * Когда переопределен, возвращает массив анекдотов,
      * которые имеют указанную оценку.
      * @return Массив анекдотов, которые имеют указанную оценку.
      */
-    IAnecdote[] getAnecdotesOfRating(Rating rating);
+    Anecdote[] getAnecdotesOfRating(Rating rating);
 
     /**
      * Когда переопределен, присваивает указанную оценку
@@ -95,6 +95,20 @@ public interface IAnecdoteBot {
      * @return Строку, содержащая сообщение результата.
      */
     String executeCommand(String input);
+
+    /**
+     * Когда переопределен, сереализует этого бота в строку String.
+     * @return Строку String, содержащую данные сериализованного бота.
+     */
+    String serialize();
+
+    /**
+     * Когда переопределен, десереализует бота и перезаписывает поля этого бота
+     * новыми данными из указанных данных, переданных в виде строки String.
+     * @param data Строка, содержащая сериализованного бота, чьи данные будут
+     *             десериализованы и присвоены этому боту.
+     */
+    void deserialize(String data);
 
     // todo: remove it later
     IRatableAnecdoteRepository getAnecdoteRepository();

@@ -18,8 +18,7 @@ public class IOTamadaBotService implements IBotService {
     private final InputStream in;
 
     public IOTamadaBotService(PrintStream out, InputStream in) {
-        var configs = new BotConfigRepository();
-        this.Config = configs.getDefaultConfig();
+        this.Config = BotConfigRepository.getDefaultConfig();
         this.out = out;
         this.in = in;
         this.Bot = new AnecdoteBot(this.Config, this.out);

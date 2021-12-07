@@ -11,10 +11,14 @@ public class RatableAnecdote extends Anecdote implements IRatableAnecdote {
     private final PropertyChangeSupport propertyChangeSupport;
     private Rating rating;
 
-    public RatableAnecdote(String anecdote) {
+    public RatableAnecdote(String anecdote, Rating rating) {
         super(anecdote);
         propertyChangeSupport = new PropertyChangeSupport(this);
-        rating = Rating.None;
+        this.rating = rating;
+    }
+
+    public RatableAnecdote(String anecdote) {
+        this(anecdote, Rating.None);
     }
 
     /**

@@ -7,10 +7,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Представляет собой класс, который организует цикл
@@ -19,18 +20,16 @@ import java.util.Map;
  */
 public class TelegramBotService extends TelegramLongPollingBot implements IBotService {
 
-    private final static String botToken = "2111079902:AAFpPaiiQpZnT3K0Lm5hArMaiEmyWi2nxdI";
     private final static String botUsername = "@tamada_ru_bot";
+    private static String botToken = null;
+    private final static Path tokenFilePath = Paths.get("src\\main\\resources\\token.txt");
 
-    private final BotConfigRepository configs;
-    private final Map<Long, IAnecdoteBot> bots;
-    private final PrintStream dump;
+    private final TelegramChatBots bots;
+    private final JsonChatBotsSerializer serializer;
 
     public TelegramBotService() {
-        configs = new BotConfigRepository();
-        bots = new HashMap<>();
-        var outByteArray = new ByteArrayOutputStream();
-        dump = new PrintStream(outByteArray);
+        serializer = new JsonChatBotsSerializer();
+        bots = serializer.deserializeAll();
     }
 
     /**
@@ -62,7 +61,16 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
      */
     @Override
     public String getBotToken() {
-        return botToken;
+        if (botToken != null)
+            return botToken;
+
+        try {
+            return botToken = Files.readString(tokenFilePath, StandardCharsets.US_ASCII);
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -75,49 +83,16 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
             return;
 
         var chatId = update.getMessage().getChatId();
-        var currentBot = bots.get(chatId);
-        if (currentBot == null) currentBot = initNewBot(chatId);
+        var currentBot = bots.getOrAdd(chatId);
 
         var input = update.getMessage().getText();
-        if (!currentBot.isActive()) {
-            activateBot(chatId, currentBot, input);
+        if (!currentBot.isActive() && !input.contains("старт"))
             return;
-        }
 
         var text = currentBot.executeCommand(input);
         sendBotMessage(chatId, text);
-    }
 
-    /**
-     * Инициализирует и возвращает нового бота IAnecdoteBot, а также кэширует его в хэш-мап.
-     * @param chatId id Telegram-чата, по которому будет создан новый бот.
-     * @return Возвращает нового бота IAnecdoteBot.
-     */
-    private IAnecdoteBot initNewBot(long chatId) {
-        var config = configs.getDefaultConfig();
-        var newBot = new AnecdoteBot(config, dump);
-        bots.put(chatId, newBot);
-        return newBot;
-    }
-
-    /**
-     * Активирует указанного бота по указанному id Telegram-чата,
-     * если таковая команда активации содержится в указанной строке ввода.
-     * @param chatId id Telegram-чата, с которым связан бот.
-     * @param bot бот, который будет активирован, если так указано в строке ввода.
-     * @param input строка ввода, которая содержит или не содержит
-     *              команду активации бота и все передаваемые аргументы.
-     */
-    private void activateBot(Long chatId, IAnecdoteBot bot, String input) {
-        var literals = input.split("\\s+");
-        if (literals.length <= 0 || !literals[0].equals("/start"))
-            return;
-        var config = configs.getDefaultConfig();
-        if (literals.length >= 2)
-            config = configs.getConfig(literals[1]);
-        bot.setConfig(config);
-        var text = bot.executeCommand("/start");
-        sendBotMessage(chatId, text);
+        serializer.serializeBot(chatId, currentBot);
     }
 
     /**

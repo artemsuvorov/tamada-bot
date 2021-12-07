@@ -42,7 +42,7 @@ public class InputPredicateStorage {
      * ставится в соответствие предикат от введенного сообщения пользователя.
      */
     private void fillPredicatesByCommandNames() {
-        predicatesByCommandName.put("startConversation", new InputPredicate().any("/start", "старт", "начать"));
+        predicatesByCommandName.put("startConversation", new InputPredicate().any("старт", "начать"));
         predicatesByCommandName.put("onWhatCanYouDo", new InputPredicate().all("что", "умеешь"));
         predicatesByCommandName.put("introduce", new InputPredicate().all("кто", "ты").or().has("представься"));
         predicatesByCommandName.put("greet", new InputPredicate().any("привет", "здравст", "здраст", "салют", "доброго времени суток", "хай"));

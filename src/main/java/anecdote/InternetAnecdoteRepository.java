@@ -1,5 +1,6 @@
 package anecdote;
 
+import com.google.gson.GsonBuilder;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -11,6 +12,8 @@ import org.apache.http.util.EntityUtils;
 import utils.Randomizer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -26,19 +29,43 @@ public class InternetAnecdoteRepository extends RandomRatableUnfinishedAnecdoteR
 
     private final CloseableHttpClient client;
 
+    private final AnecdoteRepositorySerializer serializer = new AnecdoteRepositorySerializer();
+    private final AnecdoteRepositoryDeserializer deserializer = new AnecdoteRepositoryDeserializer();
+
+    public InternetAnecdoteRepository(ArrayList<Anecdote> anecdotes, ArrayList<Anecdote> toldAnecdotes,
+        ArrayList<Anecdote> bannedAnecdotes, Map<Rating, ArrayList<Anecdote>> ratedAnecdotes) {
+        super(anecdotes, toldAnecdotes, bannedAnecdotes, ratedAnecdotes);
+        var requestConfig = RequestConfig.custom().setConnectTimeout(requestTimeout).build();
+        client = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
+    }
+
     public InternetAnecdoteRepository() {
         super(AnecdotesConfiguration.deserializeAnecdotesConfig());
         var requestConfig = RequestConfig.custom().setConnectTimeout(requestTimeout).build();
         client = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
     }
 
+    /**
+     * Указывает, является ли этот репозиторий пустым.
+     * @return true, если репозиторий пуст, иначе false.
+     */
     @Override
     public boolean hasAnecdotes() {
         return true;
     }
 
+    /**
+     * С некоторой вероятностью решает, выбрать анекдот из локального хранилища
+     * или запросить анекдот запросом GET с некоторого сайта анекдотов.
+     * Если анекдот выбран из локального хранилища или запрос анекдота с сайта
+     * не удался или превысил время ожидания requestTimeout, то
+     * возвращает случайный анекдот из набора еще не рассказанных анекдотов.
+     * Когда все анекдоты локального хранилища рассказаны, принимает рассказанные
+     * анекдоты как еще не рассказанные.
+     * @return Случайный анекдот из локального хранилища или из интернета.
+     */
     @Override
-    public IAnecdote getNextAnecdote() {
+    public Anecdote getNextAnecdote() {
         try {
             if (pickNextFromInternet())
                 return getAnecdoteFrom(uri);
@@ -49,16 +76,53 @@ public class InternetAnecdoteRepository extends RandomRatableUnfinishedAnecdoteR
         }
     }
 
+    /**
+     * Сериализует этот репозиторий в Json формат в строку String и возвращает ее.
+     * @return Строка String, содержащая сериализованный репозиторий анекдотов,
+     * представленный в формате Json.
+     */
+    public String serialize() {
+        var gson = new GsonBuilder()
+                .registerTypeAdapter(this.getClass(), serializer)
+                .setPrettyPrinting()
+                .create();
+        return gson.toJson(this);
+    }
+
+    /**
+     * Десериализует репозиторий из указанной строки String, содержащей данные в формате Json,
+     * и возвращает полученный репозиторий анекдотов InternetAnecdoteRepository.
+     * @return Репозиторий анекдотов, десериализованный из Json строки String.
+     */
+    public InternetAnecdoteRepository deserialize(String json) {
+        var gson = new GsonBuilder()
+                .registerTypeAdapter(this.getClass(), deserializer)
+                .create();
+        return gson.fromJson(json, this.getClass());
+    }
+
+    /**
+     * Указывает, брать ли следующий анекдот из интернета.
+     * @return true, если следующий анекдот должен быть взят из интернета, иначе false.
+     */
     private boolean pickNextFromInternet() {
         return Randomizer.getRandomNumber(2) == 0;
     }
 
-    private IAnecdote getAnecdoteFrom(String uri) throws IOException, ConnectTimeoutException {
-        var response = sendRequestAnecdote(uri);
-        var contents = readHttpContentsOrNull(response.getEntity());
-        var text = extractAnecdoteTextOrNull(contents);
-        response.close();
-
+    /**
+     * Создает и отправляет GET запрос к серверу сайта по указанному URI, извлекает текст
+     * анекдота из присланного HTTP ответа и возвращает полученный анекдот Anecdote.
+     * @param uri URI сайта, к которому будет отправлен GET запрос анекдота.
+     * @return Анекдот, извлеченный из присланного HTTP ответа.
+     * @throws IOException
+     * @throws ConnectTimeoutException
+     */
+    private Anecdote getAnecdoteFrom(String uri) throws IOException, ConnectTimeoutException {
+        String text;
+        try (var response = sendRequestAnecdote(uri)) {
+            var contents = readHttpContentsOrNull(response.getEntity());
+            text = extractAnecdoteTextOrNull(contents);
+        }
         var anecdote = new RatableAnecdote(text);
         toldAnecdotes.add(anecdote);
         listenRatableAnecdote(anecdote);
@@ -67,12 +131,25 @@ public class InternetAnecdoteRepository extends RandomRatableUnfinishedAnecdoteR
         return anecdote;
     }
 
+    /**
+     * Создает и отправляет GET запрос к серверу сайта по указанному URI.
+     * @param uri URI сайта, к которому будет отправлен GET запрос анекдота.
+     * @return Полученный HTTP ответ.
+     * @throws IOException
+     * @throws ConnectTimeoutException
+     */
     private CloseableHttpResponse sendRequestAnecdote(String uri) throws IOException, ConnectTimeoutException {
         var request = new HttpGet(uri);
         var response = client.execute(request);
         return response;
     }
 
+    /**
+     * Считывает полученный HTTP ответ и возвращает его содержание в виде строки String.
+     * @param entity HTTP сущность, которая может быть превращена в строку String.
+     * @return Содержание HTML страницы полученного HTTP ответа в виде строки String
+     * или null, если преобразование HTTP ответа в строку String не удалось.
+     */
     private String readHttpContentsOrNull(HttpEntity entity) {
         try {
             return EntityUtils.toString(entity, "UTF-8");
@@ -81,6 +158,11 @@ public class InternetAnecdoteRepository extends RandomRatableUnfinishedAnecdoteR
         }
     }
 
+    /**
+     * Извлекает текст анекдота по определенному HTML тегу из HTML страницы HTTP ответа.
+     * @param httpContents содержание HTML страницы полученного HTTP ответа.
+     * @return Извлеченный текст анекдота или null, если текст извлечь не удалось.
+     */
     private String extractAnecdoteTextOrNull(String httpContents) {
         if (httpContents == null || httpContents.isBlank())
             return null;
