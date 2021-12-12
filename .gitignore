@@ -27,3 +27,7 @@ hs_err_pid*
 .idea/
 out/
 target/
+
+# Private
+src/main/resources/token.txt
+src/main/resources/chats/
