@@ -1,12 +1,13 @@
 package bot;
 
-import anecdote.CommonAnecdoteList;
+import commands.CommandButtonMarkups;
 import commands.InputPredicate;
 import commands.InputPredicateStorage;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
@@ -29,12 +30,12 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
 
     private final TelegramChatBots bots;
     private final JsonChatBotsSerializer serializer;
-    private final CommonAnecdoteList commonAnecdotes;
+    private final CommandButtonMarkups markups;
 
     public TelegramBotService() {
         serializer = new JsonChatBotsSerializer();
         bots = serializer.deserializeAll();
-        commonAnecdotes = serializer.deserializeCommonAnecdotes();
+        markups = new CommandButtonMarkups();
     }
 
     /**
@@ -84,19 +85,27 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
      */
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.getMessage().getText() == null)
-            return;
+        String input;
+        Long chatId;
 
-        Long chatId = update.getMessage().getChatId();
+        if (update.hasMessage()) {
+            input = update.getMessage().getText();
+            chatId = update.getMessage().getChatId();
+        } else if (update.hasCallbackQuery()) {
+            input = update.getCallbackQuery().getData();
+            chatId = update.getCallbackQuery().getMessage().getChatId();
+        } else {
+            return;
+        }
+
         IAnecdoteBot currentBot = bots.getOrAdd(chatId);
 
-        String input = update.getMessage().getText();
         InputPredicate startPredicate = InputPredicateStorage.StartCommandPredicate;
         if (!currentBot.getState().isActive() && !startPredicate.match(input))
             return;
 
         String text = currentBot.executeCommand(input);
-        sendBotMessage(chatId, text);
+        sendBotMessage(chatId, input, text);
 
         serializer.serializeBot(chatId, currentBot);
         serializer.serializeCommonAnecdotes();
@@ -108,11 +117,14 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
      * @param chatId id Telegram-чата, в который будет отправлено сообщение.
      * @param text текст сообщения, которое будет оправлено в Telegram-чат.
      */
-    private void sendBotMessage(Long chatId, String text) {
+    private void sendBotMessage(Long chatId, String input, String text) {
         if (text == null || text.isBlank())
             return;
         try {
-            execute(SendMessage.builder().chatId(chatId.toString()).text(text).build());
+            InlineKeyboardMarkup markup = markups.getButtonMarkupOrNull(input);
+            SendMessage message = SendMessage.builder()
+                    .chatId(chatId.toString()).replyMarkup(markup).text(text).build();
+            execute(message);
         } catch (TelegramApiException ex) {
             ex.printStackTrace();
         }

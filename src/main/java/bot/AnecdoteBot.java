@@ -18,7 +18,6 @@ public final class AnecdoteBot implements IAnecdoteBot {
 
     private InternetAnecdoteRepository anecdoteRepository; // todo: make repo outside
 
-    private final InputPredicateStorage predicates;
     private CommandStorage commands;
     private final PrintStream out;
 
@@ -35,7 +34,6 @@ public final class AnecdoteBot implements IAnecdoteBot {
         anecdoteRepository = new InternetAnecdoteRepository(this.id);
 
         this.out = out;
-        this.predicates = new InputPredicateStorage();
         this.commands = new CommandStorage(this, config, this.out);
     }
 
@@ -212,7 +210,7 @@ public final class AnecdoteBot implements IAnecdoteBot {
         if (input == null)
             return commands.getNotUnderstandCommand().execute(UserInput.Empty);
 
-        var commandName = predicates.getCommandNameOrNull(input);
+        var commandName = InputPredicateStorage.getCommandNameOrNull(input);
         var command = commands.getCommandOrNull(commandName);
         if (command == null) command = commands.getNotUnderstandCommand();
 

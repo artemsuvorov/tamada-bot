@@ -9,14 +9,12 @@ import java.util.Map;
  */
 public class InputPredicateStorage {
 
-    private final Map<String, InputPredicate> predicatesByCommandName;
+    private static final Map<String, InputPredicate> predicatesByCommandName = new HashMap<>();
+    public static final InputPredicate StartCommandPredicate = new InputPredicate().any("start", "старт", "начать");
 
-    public InputPredicateStorage() {
-        this.predicatesByCommandName = new HashMap<>();
+    static {
         fillPredicatesByCommandNames();
     }
-
-    public static final InputPredicate StartCommandPredicate = new InputPredicate().any("start", "старт", "начать");
 
     /**
      * Ищет в хранилище предикат, которому удовлетворяет указанная строка,
@@ -27,7 +25,7 @@ public class InputPredicateStorage {
      * @return Название команды бота, которой поставлен в соответствие найденный
      * предикат. Если такой предикат не был найден, возвращает null.
      */
-    public String getCommandNameOrNull(String input) {
+    public static String getCommandNameOrNull(String input) {
         var lowerInput = input.toLowerCase().trim();
         String commandName = null;
         for (var entry : predicatesByCommandName.entrySet()) {
@@ -43,7 +41,7 @@ public class InputPredicateStorage {
      * Заполняет hash map названиями команд бота, каждой из которых
      * ставится в соответствие предикат от введенного сообщения пользователя.
      */
-    private void fillPredicatesByCommandNames() {
+    private static void fillPredicatesByCommandNames() {
         predicatesByCommandName.put("startConversation", StartCommandPredicate);
         predicatesByCommandName.put("onWhatCanYouDo", new InputPredicate().all("что", "умеешь"));
         predicatesByCommandName.put("introduce", new InputPredicate().all("кто", "ты").or().has("представься"));
