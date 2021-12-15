@@ -1,7 +1,8 @@
 package anecdote;
 
-import java.beans.PropertyChangeListener;
+import event.ActionListener;
 
+// todo: remove the interface
 /**
  * Определяет интерфейс анекдота, который может быть оценен.
  */
@@ -17,18 +18,18 @@ public interface IRatableAnecdote extends IAnecdote {
      * Когда переопределен, присваивает указанную оценку анекдоту.
      * @param rating оценка, которая будет присвоена анекдоту.
      */
-    void setRating(Rating rating);
+    void setRating(long senderId, Rating rating);
 
     /**
      * Когда переопределен, подписывает указанный объект на прослушивание изменений оценки этого анекдота.
      * @param listener объект, который будет подписан на прослушивание изменений оценки.
      */
-    void addListener(PropertyChangeListener listener);
+    void addListener(ActionListener listener);
 
     /**
      * Когда переопределен, отписывает указанный объект от прослушивания изменений оценки этого анекдота.
      * @param listener объект, который будет отписан от прослушивания изменений оценки.
      */
-    void removeListener(PropertyChangeListener listener);
+    void removeListener(ActionListener listener);
 
 }

@@ -1,10 +1,8 @@
 package anecdote;
 
-import com.google.gson.Gson;
 import utils.Randomizer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -46,6 +44,16 @@ public class RandomAnecdoteRepository implements IAnecdoteRepository {
     @Override
     public int getCount() {
         return anecdotes.size() + toldAnecdotes.size();
+    }
+
+    /**
+     * Указывает, содержится ли переданный анекдот в этом репозитории.
+     * @param anecdote анекдот, который будет проверен на нахождение в этом репозитории.
+     * @return true, если анекдот содержится в этом репозитории, иначе false.
+     */
+    @Override
+    public boolean contains(Anecdote anecdote) {
+        return anecdotes.contains(anecdote) || toldAnecdotes.contains(anecdote) || bannedAnecdotes.contains(anecdote);
     }
 
     /**

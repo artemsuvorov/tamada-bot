@@ -2,6 +2,7 @@ package bot;
 
 import anecdote.Anecdote;
 import anecdote.IRatableAnecdoteRepository;
+import anecdote.InternetAnecdoteRepository;
 import anecdote.Rating;
 
 /**
@@ -17,17 +18,23 @@ public interface IAnecdoteBot {
     String getName();
 
     /**
-     * Когда переопределен, указывает активен ли бот, т.е. ожидает ли он
-     * следующего ввода пользователем сообщения.
-     * @return true, если бот активен, иначе false.
+     * Когда переопределен, возвращает уникальный id номер, проассоциированный с этим ботом.
+     * Этот id номер соответствует номеру текущего Telegram-чата.
+     * @return id номер, проассоциированный с этим ботом.
      */
-    boolean isActive();
+    long getAssociatedId();
 
     /**
      * Когда переопределен, возвращает текущее состояние бота BotState.
      * @return Текущее состояние бота BotState.
      */
     BotState getState();
+
+    /**
+     * Возвращает репозиторий анекдотов бота.
+     * @return репозиторий анекдотов бота.
+     */
+    InternetAnecdoteRepository getAnecdoteRepository();
 
     /**
      * Когда переопределен, сбрасывает текущее состояние бота к стандартному.
@@ -60,6 +67,12 @@ public interface IAnecdoteBot {
     boolean hasAnecdotes();
 
     /**
+     * Когда переопределен, возвращает последний рассказанный ботом анекдот.
+     * @return Последний рассказанный ботом анекдот.
+     */
+    Anecdote getLastAnecdote();
+
+    /**
      * Когда переопределен, возвращает следующий анекдот.
      * @return Анекдот.
      */
@@ -86,7 +99,7 @@ public interface IAnecdoteBot {
      * @param ending концовка, которая будет дописана анекдоту.
      * @return Анекдот с новой концовкой в виде строки.
      */
-    String setEndingForLastAnecdote(String ending);
+    void setEndingForLastAnecdote(String ending);
 
     /**
      * Когда переопределен, заставляет бота исполнить команду, содержащуюся
@@ -109,7 +122,4 @@ public interface IAnecdoteBot {
      *             десериализованы и присвоены этому боту.
      */
     void deserialize(String data);
-
-    // todo: remove it later
-    IRatableAnecdoteRepository getAnecdoteRepository();
 }

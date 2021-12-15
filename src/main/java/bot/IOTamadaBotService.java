@@ -30,7 +30,7 @@ public class IOTamadaBotService implements IBotService {
     public void start() {
         Bot.executeCommand("/start");
         try (var scanner = new Scanner(this.in)) {
-            while (Bot.isActive()) {
+            while (Bot.getState().isActive()) {
                 var input = scanner.nextLine();
                 Bot.executeCommand(input);
             }

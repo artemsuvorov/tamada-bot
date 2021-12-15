@@ -1,19 +1,20 @@
 package anecdote;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
+import event.ActionListener;
+import event.EventHandler;
+import event.RatingActionEvent;
 
 /**
  * Представляет собой класс анекдота, который может быть оценен.
  */
 public class RatableAnecdote extends Anecdote implements IRatableAnecdote {
 
-    private final PropertyChangeSupport propertyChangeSupport;
+    private final EventHandler ratingChanged;
     private Rating rating;
 
     public RatableAnecdote(String anecdote, Rating rating) {
         super(anecdote);
-        propertyChangeSupport = new PropertyChangeSupport(this);
+        ratingChanged = new EventHandler();
         this.rating = rating;
     }
 
@@ -37,11 +38,12 @@ public class RatableAnecdote extends Anecdote implements IRatableAnecdote {
      * @param newRating оценка, которая будет присвоена анекдоту.
      */
     @Override
-    public void setRating(Rating newRating) {
+    public void setRating(long senderId, Rating newRating) {
         if (rating == newRating) return;
         var oldRating = rating;
         rating = newRating;
-        propertyChangeSupport.firePropertyChange("rating", oldRating, newRating);
+        RatingActionEvent event = new RatingActionEvent(senderId, this, oldRating, newRating);
+        ratingChanged.invoke(this, event);
     }
 
     /**
@@ -49,8 +51,8 @@ public class RatableAnecdote extends Anecdote implements IRatableAnecdote {
      * @param listener объект, который будет подписан на прослушивание изменений оценки.
      */
     @Override
-    public void addListener(PropertyChangeListener listener) {
-        propertyChangeSupport.addPropertyChangeListener(listener);
+    public void addListener(ActionListener listener) {
+        ratingChanged.addListener(listener);
     }
 
     /**
@@ -58,8 +60,8 @@ public class RatableAnecdote extends Anecdote implements IRatableAnecdote {
      * @param listener объект, который будет отписан от прослушивания изменений оценки.
      */
     @Override
-    public void removeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.removePropertyChangeListener(listener);
+    public void removeListener(ActionListener listener) {
+        ratingChanged.removeListener(listener);
     }
 
 }

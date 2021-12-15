@@ -1,5 +1,6 @@
 package commands;
 
+import java.util.Locale;
 import java.util.function.Predicate;
 
 /**
@@ -38,7 +39,7 @@ public class InputPredicate {
     public boolean match(String input) {
         if (inputFitsView == null)
             inputFitsView = (inp) -> true;
-        return inputFitsView.test(input);
+        return inputFitsView.test(input.trim().toLowerCase(Locale.ROOT));
     }
 
     /**

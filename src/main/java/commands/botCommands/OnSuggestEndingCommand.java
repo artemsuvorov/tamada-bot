@@ -1,7 +1,6 @@
 package commands.botCommands;
 
 import bot.BotConfiguration;
-import bot.BotState;
 import bot.IAnecdoteBot;
 import commands.UserInput;
 import utils.Randomizer;
@@ -16,15 +15,16 @@ public class OnSuggestEndingCommand extends BotCommand {
 
     @Override
     public String execute(UserInput input) {
-        if (Bot.getState() != BotState.UnfinishedAnecdoteTold)
+        if (!Bot.getState().wasUnfinishedAnecdoteTold())
             return printBotMessage(Config.OnNoAnecdotesToSuggest);
 
         var ending = String.join(" ", input.getArguments());
-        if (ending == null || ending.isBlank())
+        if (ending.isBlank())
             return printBotMessage(Config.OnInvalidSuggestion);
 
         var text = Randomizer.getRandomElement(Config.OnEndingSuggested);
-        var anecdote = Bot.setEndingForLastAnecdote(ending);
+        Bot.setEndingForLastAnecdote(ending);
+        var anecdote = Bot.getLastAnecdote();
         return printBotMessage(text + "\r\n\r\n" + anecdote);
     }
 

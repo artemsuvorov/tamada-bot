@@ -18,4 +18,10 @@ public interface IRatableAnecdoteRepository extends IAnecdoteRepository {
      */
     Anecdote[] getAnecdotesOfRating(Rating rating);
 
+    /**
+     * Когда переопределен, указывает, содержится ли переданный анекдот среди оцененных анекдотов.
+     * @param anecdote анекдот, который будет проверен на нахождение среди оцененных анекдотов.
+     * @return true, если анекдот содержится среди оцененных анекдотов, иначе false.
+     */
+    boolean containsRatedAnecdote(Anecdote anecdote);
 }
