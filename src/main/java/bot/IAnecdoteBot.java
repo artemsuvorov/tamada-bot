@@ -16,6 +16,9 @@ public interface IAnecdoteBot {
      */
     String getName();
 
+    // todo: add javadoc
+    long getAssociatedId();
+
     /**
      * Когда переопределен, указывает активен ли бот, т.е. ожидает ли он
      * следующего ввода пользователем сообщения.
@@ -95,6 +98,9 @@ public interface IAnecdoteBot {
      * @return Строку, содержащая сообщение результата.
      */
     String executeCommand(String input);
+
+    // todo: probably remove it later
+    void pullCommonAnecdotes();
 
     /**
      * Когда переопределен, сереализует этого бота в строку String.

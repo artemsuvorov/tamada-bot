@@ -1,5 +1,7 @@
 package anecdote;
 
+import java.util.Objects;
+
 /**
  * Представляет собой класс неоконченного анекдота,
  * который поддерживает возможность дописать ему концовку.
@@ -8,15 +10,21 @@ public class UnfinishedAnecdote extends RatableAnecdote {
 
     private final static String gapIndicator = ".............";
 
-    private String ending = "";
+    private long authorId;
+    private String ending;
 
     public UnfinishedAnecdote(String anecdote, Rating rating, String ending) {
+        this(anecdote, rating, 0, ending);
+    }
+
+    public UnfinishedAnecdote(String anecdote, Rating rating, long authorId, String ending) {
         super(anecdote, rating);
+        this.authorId = authorId;
         this.ending = ending;
     }
 
     public UnfinishedAnecdote(String anecdote) {
-        this(anecdote, Rating.None, null);
+        this(anecdote, Rating.None, 0, null);
     }
 
     /**
@@ -25,6 +33,11 @@ public class UnfinishedAnecdote extends RatableAnecdote {
      */
     public boolean hasEnding() {
         return ending != null && !ending.isBlank();
+    }
+
+    // todo: add javadoc
+    public long getAuthorId() {
+        return authorId;
     }
 
     /**
@@ -40,8 +53,13 @@ public class UnfinishedAnecdote extends RatableAnecdote {
      * Дописывает указанную концовку этому анекдоту.
      * @param ending концовка, которая будет дописана анекдоту.
      */
-    public void setEnding(String ending) {
+    public void setEnding(long authorId, String ending) {
+        this.authorId = authorId;
         this.ending = ending;
+    }
+
+    public String getTextWithoutEnding() {
+        return super.getText();
     }
 
     /**
@@ -51,9 +69,25 @@ public class UnfinishedAnecdote extends RatableAnecdote {
     @Override
     public String getText() {
         if (hasEnding())
-            return super.getText() + " " + ending;
+            return getTextWithoutEnding() + " " + ending;
         else
-            return super.getText() + " " + gapIndicator;
+            return getTextWithoutEnding() + " " + gapIndicator;
+    }
+
+    // todo: add javadoc
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        if (!super.equals(other)) return false;
+        UnfinishedAnecdote that = (UnfinishedAnecdote) other;
+        return Objects.equals(ending, that.ending);
+    }
+
+    // todo: add javadoc
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), authorId, ending);
     }
 
 }

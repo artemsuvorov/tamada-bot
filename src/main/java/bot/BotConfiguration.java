@@ -52,6 +52,12 @@ public class BotConfiguration {
      * Сообщение бота, предваряющее неоконченный анекдот.
      */
     public String OnTellUnfinishedAnecdote;
+    // todo: add javadoc
+    public String OnTellUsersAnecdote;
+    // todo: add javadoc
+    public String OnTellAuthorAnecdote;
+    // todo: add javadoc
+    public String AuthorAnecdoteRatingMessage;
 
     /**
      * Сообщение бота с предложением оценить анекдот

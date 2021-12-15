@@ -1,5 +1,6 @@
 package commands.botCommands;
 
+import anecdote.Anecdote;
 import anecdote.UnfinishedAnecdote;
 import bot.BotConfiguration;
 import bot.IAnecdoteBot;
@@ -19,15 +20,31 @@ public class TellAnecdoteCommand extends BotCommand {
         if (!Bot.hasAnecdotes())
             return printBotMessage(Config.OnNoAnecdotesMessage);
 
-        var starter = Randomizer.getRandomElement(Config.AnecdoteStarters);
         var anecdote = Bot.getNextAnecdote();
         if (anecdote == null)
             return printBotMessage(Config.OnNoAnecdotesMessage);
 
-        if (anecdote instanceof UnfinishedAnecdote unfinished && !unfinished.hasEnding())
-            return printBotMessage(Config.OnTellUnfinishedAnecdote + "\r\n\r\n" + unfinished.getText());
+        if (anecdote instanceof UnfinishedAnecdote unfinished)
+            return printUnfinishedAnecdote(unfinished);
+        else
+            return printAnecdote(anecdote);
+    }
 
+    private String printAnecdote(Anecdote anecdote) {
+        var starter = Randomizer.getRandomElement(Config.AnecdoteStarters);
         return printBotMessage(starter + "\r\n\r\n" + anecdote.getText());
+    }
+
+    private String printUnfinishedAnecdote(UnfinishedAnecdote unfinished) {
+        if (!unfinished.hasEnding())
+            return printBotMessage(Config.OnTellUnfinishedAnecdote + "\r\n\r\n" + unfinished.getText());
+        else if (Bot.getAssociatedId() == unfinished.getAuthorId())
+            return printBotMessage(Config.OnTellUsersAnecdote + "\r\n\r\n" + unfinished.getText()); // todo: extract method
+        else if (Bot.getAssociatedId() != unfinished.getAuthorId())
+            return printBotMessage(Config.OnTellAuthorAnecdote + "\r\n\r\n" + unfinished.getText() +
+                    "\r\n\r\n" + Config.AuthorAnecdoteRatingMessage + " " + unfinished.getRating());
+        else
+            return printAnecdote(unfinished);
     }
 
 }

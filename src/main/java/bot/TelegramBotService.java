@@ -1,5 +1,6 @@
 package bot;
 
+import anecdote.CommonAnecdoteList;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -26,10 +27,12 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
 
     private final TelegramChatBots bots;
     private final JsonChatBotsSerializer serializer;
+    private final CommonAnecdoteList commonAnecdotes;
 
     public TelegramBotService() {
         serializer = new JsonChatBotsSerializer();
         bots = serializer.deserializeAll();
+        commonAnecdotes = serializer.deserializeCommonAnecdotes();
     }
 
     /**
@@ -86,13 +89,15 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
         var currentBot = bots.getOrAdd(chatId);
 
         var input = update.getMessage().getText();
-        if (!currentBot.isActive() && !input.contains("старт"))
+        if (!currentBot.isActive() && !input.contains("старт")) // todo: use inputpredicate
             return;
 
         var text = currentBot.executeCommand(input);
         sendBotMessage(chatId, text);
 
         serializer.serializeBot(chatId, currentBot);
+        serializer.serializeCommonAnecdotes();
+        bots.syncCommonAnecdotesForAllRepos();
     }
 
     /**

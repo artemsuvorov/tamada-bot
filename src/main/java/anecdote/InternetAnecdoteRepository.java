@@ -1,6 +1,8 @@
 package anecdote;
 
 import com.google.gson.GsonBuilder;
+import event.ActionEvent;
+import event.ActionListener;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -22,27 +24,35 @@ import java.util.regex.Pattern;
  * Анекдоты берутся с некоторого сайта анекдотов, а также из локального хранилища.
  * Анекдоты такого репозитория поддерживают оценивание и добавление концовки.
  */
-public class InternetAnecdoteRepository extends RandomRatableUnfinishedAnecdoteRepository {
+public class InternetAnecdoteRepository extends RandomRatableUnfinishedAnecdoteRepository
+    implements ActionListener {
 
     private final String uri = "http://rzhunemogu.ru/Rand.aspx?CType=1";
-    private final int requestTimeout = 1500;
+    private final int requestTimeout = 1; // todo: set back to 1500
 
     private final CloseableHttpClient client;
 
-    private final AnecdoteRepositorySerializer serializer = new AnecdoteRepositorySerializer();
-    private final AnecdoteRepositoryDeserializer deserializer = new AnecdoteRepositoryDeserializer();
+    protected final long id;
+    private final CommonAnecdoteList commonAnecdotes = CommonAnecdoteList.get();
 
-    public InternetAnecdoteRepository(ArrayList<Anecdote> anecdotes, ArrayList<Anecdote> toldAnecdotes,
+    private final InternetAnecdoteRepositorySerializer serializer = new InternetAnecdoteRepositorySerializer();
+    private final InternetAnecdoteRepositoryDeserializer deserializer = new InternetAnecdoteRepositoryDeserializer();
+
+    public InternetAnecdoteRepository(long id, ArrayList<Anecdote> anecdotes, ArrayList<Anecdote> toldAnecdotes,
         ArrayList<Anecdote> bannedAnecdotes, Map<Rating, ArrayList<Anecdote>> ratedAnecdotes) {
         super(anecdotes, toldAnecdotes, bannedAnecdotes, ratedAnecdotes);
+        this.id = id;
         var requestConfig = RequestConfig.custom().setConnectTimeout(requestTimeout).build();
         client = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
+        commonAnecdotes.AnecdoteAddedEvent.addListener(this);
     }
 
-    public InternetAnecdoteRepository() {
+    public InternetAnecdoteRepository(long id) {
         super(AnecdotesConfiguration.deserializeAnecdotesConfig());
+        this.id = id;
         var requestConfig = RequestConfig.custom().setConnectTimeout(requestTimeout).build();
         client = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
+        commonAnecdotes.AnecdoteAddedEvent.addListener(this);
     }
 
     /**
@@ -73,6 +83,28 @@ public class InternetAnecdoteRepository extends RandomRatableUnfinishedAnecdoteR
                 return super.getNextAnecdote();
         } catch (Exception ex) {
             return super.getNextAnecdote();
+        }
+    }
+
+    /*// todo: add javadoc
+    @Override
+    public void actionPerformed(ActionEvent event) {
+        // todo: simplify event infrastructure
+        *//*if (event instanceof AnecdoteActionEvent anecdoteEvent)
+            addCommonAnecdote(anecdoteEvent.getAnecdote());
+        else if (event instanceof AnecdotesActionEvent anecdotesEvent)
+            addCommonAnecdotes(anecdotesEvent.getAnecdotes());*//*
+    }*/
+
+    public void pullCommonAnecdotes() {
+        ArrayList<Anecdote> common = commonAnecdotes.getAnecdotes();
+        for (Anecdote anecdote : common) {
+            if (contains(anecdote)) continue;
+            if (anecdote instanceof UnfinishedAnecdote unfinishedAnecdote && unfinishedAnecdote.hasEnding()) {
+                // here, we intentionally copy the anecdote by its ref into user's repo
+                anecdotes.add(unfinishedAnecdote);
+                listenRatableAnecdote(unfinishedAnecdote);
+            }
         }
     }
 
@@ -177,4 +209,22 @@ public class InternetAnecdoteRepository extends RandomRatableUnfinishedAnecdoteR
         return null;
     }
 
+   /* // todo: add javadoc
+    private void addCommonAnecdote(Anecdote anecdote) {
+        if (anecdote instanceof UnfinishedAnecdote unfinishedAnecdote)
+            if (unfinishedAnecdote.hasEnding() && id != unfinishedAnecdote.getAuthorId()) {
+                var clonedAnecdote = new UnfinishedAnecdote(unfinishedAnecdote);
+                anecdotes.add(clonedAnecdote);
+                listenRatableAnecdote(clonedAnecdote);
+            }
+    }
+
+    // todo: add javadoc
+    private void addCommonAnecdotes(ArrayList<Anecdote> anecdotes) {
+        for (Anecdote anecdote : anecdotes) {
+            if (this.anecdotes.contains(anecdote))
+                continue;
+            addCommonAnecdote(anecdote);
+        }
+    }*/
 }

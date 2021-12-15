@@ -1,9 +1,10 @@
 package anecdote;
 
-import com.google.gson.Gson;
+import event.ActionEvent;
+import event.ActionListener;
+import event.RatingActionEvent;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
  * и который выдает анекдот один за другим в случайной неповторяющейся последовательности.
  */
 public class RandomRatableAnecdoteRepository
-        extends RandomAnecdoteRepository implements IRatableAnecdoteRepository, PropertyChangeListener {
+        extends RandomAnecdoteRepository implements IRatableAnecdoteRepository, ActionListener {
 
     protected Map<Rating, ArrayList<Anecdote>> ratedAnecdotes;
 
@@ -30,11 +31,11 @@ public class RandomRatableAnecdoteRepository
 
     public RandomRatableAnecdoteRepository(ArrayList<Anecdote> anecdotes) {
         super(anecdotes);
-        listenRatableAnecdotes(anecdotes);
+        listenRatableAnecdotes(this.anecdotes);
 
-        ratedAnecdotes = new HashMap();
+        ratedAnecdotes = new HashMap<>();
         for (var rating : Rating.values()) {
-            ratedAnecdotes.put(rating, new ArrayList<Anecdote>());
+            ratedAnecdotes.put(rating, new ArrayList<>());
         }
     }
 
@@ -57,17 +58,25 @@ public class RandomRatableAnecdoteRepository
         return ratedAnecdotes.get(rating).toArray(new Anecdote[0]);
     }
 
+    //todo: remove commented out block of code
     /**
      * Этот метод вызывается, когда происходит изменение свойства,
      * на которое кто-то был подписан.
      * @param evt PropertyChangeEvent объект, описывающий источник
      *            события и свойство, которое было изменено.
      */
-    @Override
+    /*
     public void propertyChange(PropertyChangeEvent evt) {
+        // todo: probably after repository refill propChange method won't invoke at all
         if (evt.getSource() instanceof RatableAnecdote anecdote && evt.getPropertyName() == "rating")
             if (evt.getOldValue() instanceof Rating oldRating && evt.getNewValue() instanceof Rating newRating)
                 onAnecdoteRatingChanged(anecdote, oldRating, newRating);
+    }*/
+
+    @Override
+    public void actionPerformed(ActionEvent evt) {
+        if (evt instanceof RatingActionEvent ratingEvent)
+            onAnecdoteRatingChanged(ratingEvent.getAnecdote(), ratingEvent.getOldRating(), ratingEvent.getNewRating());
     }
 
     /**

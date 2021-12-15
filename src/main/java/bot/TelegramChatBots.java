@@ -31,7 +31,7 @@ public class TelegramChatBots {
      * @return Возвращает бота IAnecdoteBot.
      */
     public IAnecdoteBot getOrAdd(long chatId) {
-        var bot = bots.get(chatId);
+        IAnecdoteBot bot = bots.get(chatId);
         if (bot == null) bot = initNewBot(chatId);
         return bot;
     }
@@ -44,9 +44,15 @@ public class TelegramChatBots {
      */
     public IAnecdoteBot initNewBot(long chatId) {
         var config = BotConfigRepository.getDefaultConfig();
-        var newBot = new AnecdoteBot(config, dump);
+        var newBot = new AnecdoteBot(chatId, config, dump);
         bots.put(chatId, newBot);
         return newBot;
+    }
+
+    // todo: add javadoc
+    public void syncCommonAnecdotesForAllRepos() {
+        for (IAnecdoteBot bot : bots.values())
+            bot.pullCommonAnecdotes();
     }
 
 }
