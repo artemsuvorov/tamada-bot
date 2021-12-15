@@ -16,15 +16,10 @@ public final class CommonAnecdoteList {
     private final CommonAnecdoteListSerializer serializer = new CommonAnecdoteListSerializer();
     private final CommonAnecdoteListDeserializer deserializer = new CommonAnecdoteListDeserializer();
 
-    public final EventHandler AnecdoteAddedEvent;
-    public final EventHandler ListDeserializedEvent;
-
     private static CommonAnecdoteList instance;
 
     private CommonAnecdoteList() {
         commonAnecdotes = new ArrayList<>();
-        AnecdoteAddedEvent = new EventHandler();
-        ListDeserializedEvent = new EventHandler();
     }
 
     /**

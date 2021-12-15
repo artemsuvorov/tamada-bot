@@ -16,6 +16,8 @@ public class InputPredicateStorage {
         fillPredicatesByCommandNames();
     }
 
+    public static final InputPredicate StartCommandPredicate = new InputPredicate().any("start", "старт", "начать");
+
     /**
      * Ищет в хранилище предикат, которому удовлетворяет указанная строка,
      * и возвращает название команды бота, которой поставлен в соответствие
@@ -42,7 +44,7 @@ public class InputPredicateStorage {
      * ставится в соответствие предикат от введенного сообщения пользователя.
      */
     private void fillPredicatesByCommandNames() {
-        predicatesByCommandName.put("startConversation", new InputPredicate().any("старт", "начать"));
+        predicatesByCommandName.put("startConversation", StartCommandPredicate);
         predicatesByCommandName.put("onWhatCanYouDo", new InputPredicate().all("что", "умеешь"));
         predicatesByCommandName.put("introduce", new InputPredicate().all("кто", "ты").or().has("представься"));
         predicatesByCommandName.put("greet", new InputPredicate().any("привет", "здравст", "здраст", "салют", "доброго времени суток", "хай"));

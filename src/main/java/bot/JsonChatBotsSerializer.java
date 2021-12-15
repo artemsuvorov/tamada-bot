@@ -54,7 +54,9 @@ public class JsonChatBotsSerializer {
         return bots;
     }
 
-    // todo: add javadoc
+    /**
+     * Сериализует список анекдотов, общих для всех пользователей, в Json файл.
+     */
     public void serializeCommonAnecdotes() {
         String filename = commonAnecdotesFilename + "." + extension;
         CommonAnecdoteList common = CommonAnecdoteList.get();
@@ -62,7 +64,9 @@ public class JsonChatBotsSerializer {
         writeFile(filename, json);
     }
 
-    // todo: add javadoc
+    /**
+     * Десериализует список анекдотов, общих для всех пользователей, из Json файла.
+     */
     public CommonAnecdoteList deserializeCommonAnecdotes() {
         String filename = commonAnecdotesFilename + "." + extension;
         Path path = serializeDirectory.toPath().resolve(filename);
@@ -74,7 +78,11 @@ public class JsonChatBotsSerializer {
         return common;
     }
 
-    // todo: add javadoc
+    /**
+     * Записывает указанную строку String в файл по указанному имени файла filename.
+     * @param filename имя файла, в который будет записана указанная строка String.
+     * @param content строка, содержимое которой будет записано в указанный файл.
+     */
     private void writeFile(String filename, String content) {
         File file = new File(serializeDirectory, filename);
         try (PrintWriter writer = new PrintWriter(file, defaultEncoding)) {
@@ -84,7 +92,11 @@ public class JsonChatBotsSerializer {
         }
     }
 
-    // todo: add javadoc
+    /**
+     * Считывает в строку String содержание файла по указанному пути и возвращает ее.
+     * @param path путь до файла, содержание которого будет считано.
+     * @return содержание файла по указанному пути.
+     */
     private String readFile(Path path) {
         try {
             String json = Files.readString(path, defaultEncoding);

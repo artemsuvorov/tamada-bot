@@ -60,19 +60,22 @@ public class RandomRatableAnecdoteRepository
         return ratedAnecdotes.get(rating).toArray(new Anecdote[0]);
     }
 
-    // todo: add javadoc
+    /**
+     * Указывает, содержится ли переданный анекдот среди оцененных анекдотов.
+     * @param anecdote анекдот, который будет проверен на нахождение среди оцененных анекдотов.
+     * @return true, если анекдот содержится среди оцененных анекдотов, иначе false.
+     */
+    @Override
     public boolean containsRatedAnecdote(Anecdote anecdote) {
         for (ArrayList<Anecdote> list : ratedAnecdotes.values()) {
             if (list.contains(anecdote)) return true;
         }
         return false;
     }
-    // todo: update javadoc
+
     /**
-     * Этот метод вызывается, когда происходит изменение свойства,
-     * на которое кто-то был подписан.
-     * @param event PropertyChangeEvent объект, описывающий источник
-     *              события и свойство, которое было изменено.
+     * Этот метод вызывается, когда происходит событие, на которое был подписан этот класс.
+     * @param event ActionEvent объект, описывающий все свойства события.
      */
     @Override
     public void actionPerformed(ActionEvent event) {

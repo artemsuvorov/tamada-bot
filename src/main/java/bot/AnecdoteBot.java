@@ -15,8 +15,8 @@ public final class AnecdoteBot implements IAnecdoteBot {
 
     private final long id;
     private String name;
-    // todo: make repo outside
-    private InternetAnecdoteRepository anecdoteRepository;
+
+    private InternetAnecdoteRepository anecdoteRepository; // todo: make repo outside
 
     private final InputPredicateStorage predicates;
     private CommandStorage commands;
@@ -49,7 +49,11 @@ public final class AnecdoteBot implements IAnecdoteBot {
         return name;
     }
 
-    // todo: add javadoc
+    /**
+     * Возвращает уникальный id номер, проассоциированный с этим ботом.
+     * Этот id номер соответствует номеру текущего Telegram-чата.
+     * @return id номер, проассоциированный с этим ботом.
+     */
     @Override
     public long getAssociatedId() {
         return id;
@@ -63,6 +67,15 @@ public final class AnecdoteBot implements IAnecdoteBot {
     @Override
     public BotState getState() {
         return state;
+    }
+
+    /**
+     * Возвращает репозиторий анекдотов бота.
+     * @return репозиторий анекдотов бота.
+     */
+    @Override
+    public InternetAnecdoteRepository getAnecdoteRepository() {
+        return anecdoteRepository;
     }
 
     /**
@@ -111,7 +124,10 @@ public final class AnecdoteBot implements IAnecdoteBot {
         return anecdoteRepository.hasAnecdotes();
     }
 
-    // todo: add javadoc
+    /**
+     * Возвращает последний рассказанный ботом анекдот.
+     * @return Последний рассказанный ботом анекдот.
+     */
     @Override
     public Anecdote getLastAnecdote() {
         return lastAnecdote;
@@ -203,12 +219,6 @@ public final class AnecdoteBot implements IAnecdoteBot {
         return command.execute(new UserInput(input));
     }
 
-    // todo: probably remove it later
-    @Override
-    public void pullCommonAnecdotes() {
-        anecdoteRepository.pullCommonAnecdotes();
-    }
-
     /**
      * Сереализует этого бота, сохраняя его данные в формате Json в строку String.
      * Подлежащие сериализации данные бота - это содержание его репозитория анекдотов.
@@ -231,12 +241,6 @@ public final class AnecdoteBot implements IAnecdoteBot {
     @Override
     public void deserialize(String json) {
         anecdoteRepository = anecdoteRepository.deserialize(json);
-    }
-
-    // todo: add javadoc and place it up
-    @Override
-    public InternetAnecdoteRepository getAnecdoteRepository() {
-        return anecdoteRepository;
     }
 
 }

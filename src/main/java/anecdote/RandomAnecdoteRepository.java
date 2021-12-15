@@ -46,7 +46,11 @@ public class RandomAnecdoteRepository implements IAnecdoteRepository {
         return anecdotes.size() + toldAnecdotes.size();
     }
 
-    // todo: add javadoc
+    /**
+     * Указывает, содержится ли переданный анекдот в этом репозитории.
+     * @param anecdote анекдот, который будет проверен на нахождение в этом репозитории.
+     * @return true, если анекдот содержится в этом репозитории, иначе false.
+     */
     @Override
     public boolean contains(Anecdote anecdote) {
         return anecdotes.contains(anecdote) || toldAnecdotes.contains(anecdote) || bannedAnecdotes.contains(anecdote);

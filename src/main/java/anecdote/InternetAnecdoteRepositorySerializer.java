@@ -17,7 +17,7 @@ public class InternetAnecdoteRepositorySerializer implements JsonSerializer<Inte
     public JsonElement serialize(InternetAnecdoteRepository repository, Type type, JsonSerializationContext context) {
         JsonObject json = new JsonObject();
 
-        json.addProperty("id", repository.id); // todo: maybe get id value by reflection
+        json.addProperty("id", repository.id);
         json.add("ratedAnecdotes", serializeRatedAnecdotes(repository.ratedAnecdotes));
         json.add("anecdotes", serializeAnecdotes(repository.anecdotes, false));
         json.add("toldAnecdotes", serializeAnecdotes(repository.toldAnecdotes, false));

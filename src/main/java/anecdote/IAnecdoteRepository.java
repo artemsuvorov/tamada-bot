@@ -20,7 +20,11 @@ public interface IAnecdoteRepository extends Serializable {
      */
     boolean hasAnecdotes();
 
-    // todo: add javadoc
+    /**
+     * Когда переопределен, указывает, содержится ли переданный анекдот в этом репозитории.
+     * @param anecdote анекдот, который будет проверен на нахождение в этом репозитории.
+     * @return true, если анекдот содержится в этом репозитории, иначе false.
+     */
     boolean contains(Anecdote anecdote);
 
     /**

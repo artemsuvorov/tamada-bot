@@ -49,10 +49,14 @@ public class TelegramChatBots {
         return newBot;
     }
 
-    // todo: add javadoc
+    /**
+     * Синхронизирует репозитории Telegram-пользователей со списком анекдотов,
+     * общих для всех пользователей. Т.е. заставляет все пользовательские репозитории добавить
+     * к себе все недостающие анекдоты из списка анекдотов, общих для всех пользователей.
+     */
     public void syncCommonAnecdotesForAllRepos() {
         for (IAnecdoteBot bot : bots.values())
-            bot.pullCommonAnecdotes();
+            bot.getAnecdoteRepository().pullCommonAnecdotes();
     }
 
 }

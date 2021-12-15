@@ -17,7 +17,11 @@ public interface IAnecdoteBot {
      */
     String getName();
 
-    // todo: add javadoc
+    /**
+     * Когда переопределен, возвращает уникальный id номер, проассоциированный с этим ботом.
+     * Этот id номер соответствует номеру текущего Telegram-чата.
+     * @return id номер, проассоциированный с этим ботом.
+     */
     long getAssociatedId();
 
     /**
@@ -25,6 +29,12 @@ public interface IAnecdoteBot {
      * @return Текущее состояние бота BotState.
      */
     BotState getState();
+
+    /**
+     * Возвращает репозиторий анекдотов бота.
+     * @return репозиторий анекдотов бота.
+     */
+    InternetAnecdoteRepository getAnecdoteRepository();
 
     /**
      * Когда переопределен, сбрасывает текущее состояние бота к стандартному.
@@ -56,7 +66,10 @@ public interface IAnecdoteBot {
      */
     boolean hasAnecdotes();
 
-    // todo: add javadoc
+    /**
+     * Когда переопределен, возвращает последний рассказанный ботом анекдот.
+     * @return Последний рассказанный ботом анекдот.
+     */
     Anecdote getLastAnecdote();
 
     /**
@@ -96,9 +109,6 @@ public interface IAnecdoteBot {
      */
     String executeCommand(String input);
 
-    // todo: probably remove it later
-    void pullCommonAnecdotes();
-
     /**
      * Когда переопределен, сереализует этого бота в строку String.
      * @return Строку String, содержащую данные сериализованного бота.
@@ -112,7 +122,4 @@ public interface IAnecdoteBot {
      *             десериализованы и присвоены этому боту.
      */
     void deserialize(String data);
-
-    // todo: add javadoc and place it up
-    InternetAnecdoteRepository getAnecdoteRepository();
 }

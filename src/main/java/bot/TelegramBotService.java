@@ -1,6 +1,8 @@
 package bot;
 
 import anecdote.CommonAnecdoteList;
+import commands.InputPredicate;
+import commands.InputPredicateStorage;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -82,17 +84,18 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
      */
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.getMessage() == null)
+        if (update.getMessage().getText() == null)
             return;
 
-        var chatId = update.getMessage().getChatId();
-        var currentBot = bots.getOrAdd(chatId);
+        Long chatId = update.getMessage().getChatId();
+        IAnecdoteBot currentBot = bots.getOrAdd(chatId);
 
-        var input = update.getMessage().getText();
-        if (input == null || !currentBot.getState().isActive() && !input.contains("старт")) // todo: use inputpredicate
+        String input = update.getMessage().getText();
+        InputPredicate startPredicate = InputPredicateStorage.StartCommandPredicate;
+        if (!currentBot.getState().isActive() && !startPredicate.match(input))
             return;
 
-        var text = currentBot.executeCommand(input);
+        String text = currentBot.executeCommand(input);
         sendBotMessage(chatId, text);
 
         serializer.serializeBot(chatId, currentBot);

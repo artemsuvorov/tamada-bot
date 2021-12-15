@@ -35,7 +35,10 @@ public class UnfinishedAnecdote extends RatableAnecdote {
         return ending != null && !ending.isBlank();
     }
 
-    // todo: add javadoc
+    /**
+     * Возвращает уникальный id номер автора, добавившего этому анекдоту концовку.
+     * @return Уникальный id номер автора, добавившего этому анекдоту концовку.
+     */
     public long getAuthorId() {
         return authorId;
     }
@@ -58,18 +61,31 @@ public class UnfinishedAnecdote extends RatableAnecdote {
         this.ending = ending;
     }
 
-    // todo: add javadoc
+    /**
+     * Возвращает общий рейтинг анекдота, т.е. среднюю оценку всех пользователей,
+     * которые оценили этот анекдот.
+     * @return Общий рейтинг анекдота.
+     */
     public double getTotalRating() {
         return totalRating.getAverageRating();
     }
 
-    // todo: add javadoc
+    /**
+     * Присваивает указанную оценку анекдоту, а также добавляет ее в сумму всех оценок пользователей.
+     * Если анекдот изменил свою оценку, метод оповещает об этом всех подписчиков.
+     * @param senderId уникальный id номер пользователя, оценившего анекдот.
+     * @param rating оценка, которая будет присвоена анекдоту.
+     */
     @Override
     public void setRating(long senderId, Rating rating) {
         super.setRating(senderId, rating);
         totalRating.addUserRating(rating);
     }
 
+    /**
+     * Возвращает содержание анекдота без его концовки.
+     * @return Содержание анекдота без его концовки.
+     */
     public String getTextWithoutEnding() {
         return super.getText();
     }
@@ -86,7 +102,12 @@ public class UnfinishedAnecdote extends RatableAnecdote {
             return getTextWithoutEnding() + " " + gapIndicator;
     }
 
-    // todo: add javadoc
+    /**
+     * Указывает, равны ли этот анекдот и переданный объект.
+     * Анекдоты равны тогда, когда равны их тексты и концовки.
+     * @param other объект, который подлежит сравнению с этим анекдотом.
+     * @return true, если анекдоты равны, иначе false.
+     */
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
@@ -96,7 +117,10 @@ public class UnfinishedAnecdote extends RatableAnecdote {
         return Objects.equals(ending, that.ending);
     }
 
-    // todo: add javadoc
+    /**
+     * Возвращает хэш-код анекдота.
+     * @return Хэш-код анекдота.
+     */
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), authorId, ending);

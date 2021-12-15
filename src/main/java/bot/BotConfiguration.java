@@ -52,13 +52,23 @@ public class BotConfiguration {
      * Сообщение бота, предваряющее неоконченный анекдот.
      */
     public String OnTellUnfinishedAnecdote;
-    // todo: add javadoc
+    /**
+     * Сообщение бота, предваряющее анекдот, концовку которому придумал текущий пользователь.
+     */
     public String OnTellUsersAnecdote;
-    // todo: add javadoc
+    /**
+     * Сообщение бота, предваряющее анекдот, концовку которому придумал какой-то другой пользователь.
+     */
     public String OnTellAuthorAnecdote;
-    // todo: add javadoc
+    /**
+     * Сообщение бота, идущее перед средним рейтингом анекдота,
+     * концовку которому придумал какой-то другой пользователь.
+     */
     public String AuthorAnecdoteRatingMessage;
-    // todo: add javadoc
+    /**
+     * Сообщение бота, идущее перед средним рейтингом анекдота,
+     * концовку которому придумал текущий пользователь.
+     */
     public String UserAnecdoteRatingMessage;
 
     /**
@@ -76,9 +86,14 @@ public class BotConfiguration {
      * (например, анекдот не поддерживает оценивания)
      */
     public String OnCannotRateAnecdoteMessage;
-    // todo: add javadoc
+    /**
+     * Сообщение бота, когда пользователь попытался оценить собственный анекдот более одного раза.
+     */
     public String OnUserAnecdoteRateTwiceMessage;
-    // todo: add javadoc
+    /**
+     * Сообщение бота, идущее перед средним рейтингом анекдота,
+     * который изменился после последней оценки пользователя.
+     */
     public String AnecdoteCurrentRatingMessage;
     /**
      * Сообщения бота, являющееся реакцией на положительную оценку пользователя
