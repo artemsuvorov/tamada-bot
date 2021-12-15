@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * Представляет собой вспомогательный класс, который используется
- * для десериализации репозитория анекдотов InternetAnecdoteRepository в файл Json.
+ * для десериализации репозитория анекдотов InternetAnecdoteRepository из файла Json.
  */
 public class InternetAnecdoteRepositoryDeserializer implements JsonDeserializer<InternetAnecdoteRepository> {
 
@@ -44,18 +44,27 @@ public class InternetAnecdoteRepositoryDeserializer implements JsonDeserializer<
             String text = anecdote.get("text").getAsString();
             Rating rating = Rating.valueOf(anecdote.get("rating").getAsString());
             if (anecdote.has("type") && anecdote.get("type").getAsString().equals("UnfinishedAnecdote")) {
-                String ending = null;
+                TotalRating totalRating = null;
                 long authorId = 0;
+                String ending = null;
                 if (anecdote.has("ending")) {
                     ending = anecdote.get("ending").getAsString();
                     authorId = anecdote.get("authorId").getAsLong();
+                    totalRating = deserializeTotalRating(anecdote);
                 }
-                anecdotes.add(new UnfinishedAnecdote(text, rating, authorId, ending));
+                anecdotes.add(new UnfinishedAnecdote(text, rating, totalRating, authorId, ending));
             } else {
                 anecdotes.add(new RatableAnecdote(text, rating));
             }
         }
         return anecdotes;
+    }
+
+    private TotalRating deserializeTotalRating(JsonObject anecdote) {
+        JsonObject jsonTotalRating = anecdote.get("totalRating").getAsJsonObject();
+        double sum = jsonTotalRating.get("ratingSum").getAsDouble();
+        double count = jsonTotalRating.get("ratingCount").getAsDouble();
+        return new TotalRating(sum, count);
     }
 
 }

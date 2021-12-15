@@ -2,6 +2,7 @@ package bot;
 
 import anecdote.Anecdote;
 import anecdote.IRatableAnecdoteRepository;
+import anecdote.InternetAnecdoteRepository;
 import anecdote.Rating;
 
 /**
@@ -18,13 +19,6 @@ public interface IAnecdoteBot {
 
     // todo: add javadoc
     long getAssociatedId();
-
-    /**
-     * Когда переопределен, указывает активен ли бот, т.е. ожидает ли он
-     * следующего ввода пользователем сообщения.
-     * @return true, если бот активен, иначе false.
-     */
-    boolean isActive();
 
     /**
      * Когда переопределен, возвращает текущее состояние бота BotState.
@@ -62,6 +56,9 @@ public interface IAnecdoteBot {
      */
     boolean hasAnecdotes();
 
+    // todo: add javadoc
+    Anecdote getLastAnecdote();
+
     /**
      * Когда переопределен, возвращает следующий анекдот.
      * @return Анекдот.
@@ -89,7 +86,7 @@ public interface IAnecdoteBot {
      * @param ending концовка, которая будет дописана анекдоту.
      * @return Анекдот с новой концовкой в виде строки.
      */
-    String setEndingForLastAnecdote(String ending);
+    void setEndingForLastAnecdote(String ending);
 
     /**
      * Когда переопределен, заставляет бота исполнить команду, содержащуюся
@@ -116,6 +113,6 @@ public interface IAnecdoteBot {
      */
     void deserialize(String data);
 
-    // todo: remove it later
-    IRatableAnecdoteRepository getAnecdoteRepository();
+    // todo: add javadoc and place it up
+    InternetAnecdoteRepository getAnecdoteRepository();
 }

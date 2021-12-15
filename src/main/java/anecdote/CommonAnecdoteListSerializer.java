@@ -6,10 +6,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-// todo: edit javadoc
 /**
  * Представляет собой вспомогательный класс, который используется
- * для сериализации репозитория анекдотов InternetAnecdoteRepository из файла Json.
+ * для сериализации списка общих анекдотов {@link CommonAnecdoteList} в файл Json.
  */
 public class CommonAnecdoteListSerializer implements JsonSerializer<CommonAnecdoteList> {
 
@@ -36,6 +35,7 @@ public class CommonAnecdoteListSerializer implements JsonSerializer<CommonAnecdo
                 if (unfinishedAnecdote.hasEnding()) {
                     jsonAnecdote.addProperty("ending", unfinishedAnecdote.getEnding());
                     jsonAnecdote.addProperty("authorId", unfinishedAnecdote.getAuthorId());
+                    jsonAnecdote.add("totalRating", serializeTotalRatingOf(unfinishedAnecdote));
                 }
             }
             jsonAnecdotes.add(jsonAnecdote);
@@ -43,9 +43,25 @@ public class CommonAnecdoteListSerializer implements JsonSerializer<CommonAnecdo
         return jsonAnecdotes;
     }
 
-    private Object getValueOfField(CommonAnecdoteList list, String fieldName) {
+    private JsonObject serializeTotalRatingOf(Anecdote anecdote) {
+        JsonObject jsonObject = new JsonObject();
+
+        final String totalRatingFieldName = "totalRating";
+        final String ratingSumFieldName = "ratingSum", ratingCountFieldName = "ratingCount";
+        var totalRating = (TotalRating)getValueOfField(anecdote, totalRatingFieldName);
+
+        double sum = (double)getValueOfField(totalRating, ratingSumFieldName);
+        double count = (double)getValueOfField(totalRating, ratingCountFieldName);
+
+        jsonObject.addProperty(ratingSumFieldName, sum);
+        jsonObject.addProperty(ratingCountFieldName, count);
+
+        return jsonObject;
+    }
+
+    private <T> Object getValueOfField(T list, String fieldName) {
         try {
-            Field field = list.getClass().getDeclaredField(commonAnecdotesFieldName);
+            Field field = list.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
             var value = field.get(list);
             field.setAccessible(false);

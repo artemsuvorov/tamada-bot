@@ -2,6 +2,7 @@ package anecdote;
 
 import com.google.gson.*;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Map;
@@ -16,7 +17,7 @@ public class InternetAnecdoteRepositorySerializer implements JsonSerializer<Inte
     public JsonElement serialize(InternetAnecdoteRepository repository, Type type, JsonSerializationContext context) {
         JsonObject json = new JsonObject();
 
-        json.addProperty("id", repository.id);
+        json.addProperty("id", repository.id); // todo: maybe get id value by reflection
         json.add("ratedAnecdotes", serializeRatedAnecdotes(repository.ratedAnecdotes));
         json.add("anecdotes", serializeAnecdotes(repository.anecdotes, false));
         json.add("toldAnecdotes", serializeAnecdotes(repository.toldAnecdotes, false));
@@ -51,11 +52,41 @@ public class InternetAnecdoteRepositorySerializer implements JsonSerializer<Inte
                 if (unfinishedAnecdote.hasEnding()) {
                     jsonAnecdote.addProperty("ending", unfinishedAnecdote.getEnding());
                     jsonAnecdote.addProperty("authorId", unfinishedAnecdote.getAuthorId());
+                    jsonAnecdote.add("totalRating", serializeTotalRatingOf(unfinishedAnecdote));
                 }
             }
             jsonAnecdotes.add(jsonAnecdote);
         }
         return jsonAnecdotes;
+    }
+
+    private JsonObject serializeTotalRatingOf(Anecdote anecdote) {
+        JsonObject jsonObject = new JsonObject();
+
+        final String totalRatingFieldName = "totalRating";
+        final String ratingSumFieldName = "ratingSum", ratingCountFieldName = "ratingCount";
+        var totalRating = (TotalRating)getValueOfField(anecdote, totalRatingFieldName);
+
+        double sum = (double)getValueOfField(totalRating, ratingSumFieldName);
+        double count = (double)getValueOfField(totalRating, ratingCountFieldName);
+
+        jsonObject.addProperty(ratingSumFieldName, sum);
+        jsonObject.addProperty(ratingCountFieldName, count);
+
+        return jsonObject;
+    }
+
+    private <T> Object getValueOfField(T list, String fieldName) {
+        try {
+            Field field = list.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            var value = field.get(list);
+            field.setAccessible(false);
+            return value;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 
 }

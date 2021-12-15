@@ -39,6 +39,8 @@ public class RandomRatableAnecdoteRepository
         }
     }
 
+    // todo: implement fixes from task2
+
     /**
      * Возвращает список любимых анекдотов.
      * @return Список любимых анекдотов.
@@ -58,25 +60,45 @@ public class RandomRatableAnecdoteRepository
         return ratedAnecdotes.get(rating).toArray(new Anecdote[0]);
     }
 
-    //todo: remove commented out block of code
+    // todo: add javadoc
+    public boolean containsRatedAnecdote(Anecdote anecdote) {
+        for (ArrayList<Anecdote> list : ratedAnecdotes.values()) {
+            if (list.contains(anecdote)) return true;
+        }
+        return false;
+    }
+    // todo: update javadoc
     /**
      * Этот метод вызывается, когда происходит изменение свойства,
      * на которое кто-то был подписан.
-     * @param evt PropertyChangeEvent объект, описывающий источник
-     *            события и свойство, которое было изменено.
+     * @param event PropertyChangeEvent объект, описывающий источник
+     *              события и свойство, которое было изменено.
      */
-    /*
-    public void propertyChange(PropertyChangeEvent evt) {
-        // todo: probably after repository refill propChange method won't invoke at all
-        if (evt.getSource() instanceof RatableAnecdote anecdote && evt.getPropertyName() == "rating")
-            if (evt.getOldValue() instanceof Rating oldRating && evt.getNewValue() instanceof Rating newRating)
-                onAnecdoteRatingChanged(anecdote, oldRating, newRating);
-    }*/
-
     @Override
-    public void actionPerformed(ActionEvent evt) {
-        if (evt instanceof RatingActionEvent ratingEvent)
+    public void actionPerformed(ActionEvent event) {
+        if (event instanceof RatingActionEvent ratingEvent)
             onAnecdoteRatingChanged(ratingEvent.getAnecdote(), ratingEvent.getOldRating(), ratingEvent.getNewRating());
+    }
+
+    /**
+     * Действие, которое должно быть исполнено,
+     * когда оценка одного из анекдотов была изменена.
+     * Если анекдот был лайкнут, он добавляется в список любымых анекдотов.
+     * Если анекдот был дизлайкнут, он удаляется из этого репозитория.
+     * @param anecdote анекдот, чья оценка была изменена.
+     * @param oldRating предыдущая оценка анекдота.
+     * @param newRating новая оценка анекдота.
+     */
+    protected void onAnecdoteRatingChanged(Anecdote anecdote, Rating oldRating, Rating newRating) {
+        if (oldRating != newRating) {
+            ratedAnecdotes.get(newRating).add(anecdote);
+            if (oldRating != Rating.None)
+                ratedAnecdotes.get(oldRating).remove(anecdote);
+        }
+        if (newRating == Rating.Dislike) {
+            toldAnecdotes.remove(anecdote);
+            bannedAnecdotes.add(anecdote);
+        }
     }
 
     /**
@@ -96,27 +118,6 @@ public class RandomRatableAnecdoteRepository
      */
     protected void listenRatableAnecdote(IRatableAnecdote anecdote) {
         anecdote.addListener(this);
-    }
-
-    /**
-     * Действие, которое должно быть исполнено,
-     * когда оценка одного из анекдотов была изменена.
-     * Если анекдот был лайкнут, он добавляется в список любымых анекдотов.
-     * Если анекдот был дизлайкнут, он удаляется из этого репозитория.
-     * @param anecdote анекдот, чья оценка была изменена.
-     * @param oldRating предыдущая оценка анекдота.
-     * @param newRating новая оценка анекдота.
-     */
-    private void onAnecdoteRatingChanged(Anecdote anecdote, Rating oldRating, Rating newRating) {
-        if (oldRating != newRating) {
-            ratedAnecdotes.get(newRating).add(anecdote);
-            if (oldRating != Rating.None)
-                ratedAnecdotes.get(oldRating).remove(anecdote);
-        }
-        if (newRating == Rating.Dislike) {
-            toldAnecdotes.remove(anecdote);
-            bannedAnecdotes.add(anecdote);
-        }
     }
 
 }

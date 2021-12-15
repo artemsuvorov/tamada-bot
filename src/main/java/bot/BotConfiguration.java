@@ -58,6 +58,8 @@ public class BotConfiguration {
     public String OnTellAuthorAnecdote;
     // todo: add javadoc
     public String AuthorAnecdoteRatingMessage;
+    // todo: add javadoc
+    public String UserAnecdoteRatingMessage;
 
     /**
      * Сообщение бота с предложением оценить анекдот
@@ -74,6 +76,10 @@ public class BotConfiguration {
      * (например, анекдот не поддерживает оценивания)
      */
     public String OnCannotRateAnecdoteMessage;
+    // todo: add javadoc
+    public String OnUserAnecdoteRateTwiceMessage;
+    // todo: add javadoc
+    public String AnecdoteCurrentRatingMessage;
     /**
      * Сообщения бота, являющееся реакцией на положительную оценку пользователя
      */

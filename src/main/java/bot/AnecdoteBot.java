@@ -56,17 +56,6 @@ public final class AnecdoteBot implements IAnecdoteBot {
     }
 
     /**
-     * Указывает активен ли бот, т.е. ожидает ли он
-     * следующего ввода пользователем сообщения.
-     *
-     * @return true, если бот активен, иначе false.
-     */
-    @Override
-    public boolean isActive() {
-        return state != BotState.Deactivated;
-    }
-
-    /**
      * Возвращает текущее состояние бота BotState.
      *
      * @return Текущее состояние бота BotState.
@@ -122,6 +111,12 @@ public final class AnecdoteBot implements IAnecdoteBot {
         return anecdoteRepository.hasAnecdotes();
     }
 
+    // todo: add javadoc
+    @Override
+    public Anecdote getLastAnecdote() {
+        return lastAnecdote;
+    }
+
     /**
      * Возвращает следующий анекдот.
      *
@@ -136,8 +131,12 @@ public final class AnecdoteBot implements IAnecdoteBot {
         state = BotState.AnecdoteTold;
         if (anecdote instanceof RatableAnecdote ratableAnecdote)
             lastAnecdote = ratableAnecdote;
-        if (anecdote instanceof UnfinishedAnecdote unfinished && !unfinished.hasEnding())
-            state = BotState.UnfinishedAnecdoteTold;
+        if (anecdote instanceof UnfinishedAnecdote unfinished) {
+            if (!unfinished.hasEnding())
+                state = BotState.UnfinishedAnecdoteTold;
+            else if (id == unfinished.getAuthorId())
+                state = BotState.UserAnecdoteTold;
+        }
         return anecdote;
     }
 
@@ -163,8 +162,8 @@ public final class AnecdoteBot implements IAnecdoteBot {
      */
     @Override
     public void setRatingForLastAnecdote(Rating rating) {
-        if (state != BotState.AnecdoteTold) return;
-        ((RatableAnecdote) lastAnecdote).setRating(rating);
+        if (!state.wasAnecdoteTold()) return;
+        ((RatableAnecdote) lastAnecdote).setRating(id, rating);
         resetState();
     }
 
@@ -177,15 +176,12 @@ public final class AnecdoteBot implements IAnecdoteBot {
      * @return Анекдот с новой концовкой в виде строки.
      */
     @Override
-    public String setEndingForLastAnecdote(String ending) {
-        if (state != BotState.UnfinishedAnecdoteTold)
-            return null;
-        UnfinishedAnecdote unfinishedAnecdote = (UnfinishedAnecdote) lastAnecdote;
+    public void setEndingForLastAnecdote(String ending) {
+        if (!state.wasUnfinishedAnecdoteTold()) return;
+        UnfinishedAnecdote unfinishedAnecdote = (UnfinishedAnecdote)lastAnecdote;
         unfinishedAnecdote.setEnding(id, ending);
         CommonAnecdoteList.get().add(unfinishedAnecdote);
-        String resultingAnecdote = unfinishedAnecdote.getText();
-        state = BotState.AnecdoteTold;
-        return resultingAnecdote;
+        state = BotState.UserAnecdoteTold;
     }
 
     /**
@@ -237,9 +233,9 @@ public final class AnecdoteBot implements IAnecdoteBot {
         anecdoteRepository = anecdoteRepository.deserialize(json);
     }
 
-    // todo: remove it later
+    // todo: add javadoc and place it up
     @Override
-    public IRatableAnecdoteRepository getAnecdoteRepository() {
+    public InternetAnecdoteRepository getAnecdoteRepository() {
         return anecdoteRepository;
     }
 

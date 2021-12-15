@@ -8,6 +8,7 @@ import commands.UserInput;
 import utils.Randomizer;
 
 import java.io.PrintStream;
+import java.text.DecimalFormat;
 
 public class TellAnecdoteCommand extends BotCommand {
 
@@ -35,16 +36,21 @@ public class TellAnecdoteCommand extends BotCommand {
         return printBotMessage(starter + "\r\n\r\n" + anecdote.getText());
     }
 
-    private String printUnfinishedAnecdote(UnfinishedAnecdote unfinished) {
-        if (!unfinished.hasEnding())
-            return printBotMessage(Config.OnTellUnfinishedAnecdote + "\r\n\r\n" + unfinished.getText());
-        else if (Bot.getAssociatedId() == unfinished.getAuthorId())
-            return printBotMessage(Config.OnTellUsersAnecdote + "\r\n\r\n" + unfinished.getText()); // todo: extract method
-        else if (Bot.getAssociatedId() != unfinished.getAuthorId())
-            return printBotMessage(Config.OnTellAuthorAnecdote + "\r\n\r\n" + unfinished.getText() +
-                    "\r\n\r\n" + Config.AuthorAnecdoteRatingMessage + " " + unfinished.getRating());
+    private String printUnfinishedAnecdote(UnfinishedAnecdote anecdote) {
+        if (!anecdote.hasEnding())
+            return printBotMessage(Config.OnTellUnfinishedAnecdote + "\r\n\r\n" + anecdote.getText());// todo: extract method
+        else if (Bot.getAssociatedId() == anecdote.getAuthorId())
+            return printFinishedAnecdote(Config.OnTellUsersAnecdote, Config.UserAnecdoteRatingMessage, anecdote);
+        else if (Bot.getAssociatedId() != anecdote.getAuthorId())
+            return printFinishedAnecdote(Config.OnTellAuthorAnecdote, Config.AuthorAnecdoteRatingMessage, anecdote);
         else
-            return printAnecdote(unfinished);
+            return printAnecdote(anecdote);
+    }
+
+    private String printFinishedAnecdote(String starter, String ratingMessage, UnfinishedAnecdote anecdote) {
+        var formattedRating = new DecimalFormat("#.00").format(anecdote.getTotalRating());
+        return printBotMessage(starter + "\r\n\r\n" + anecdote.getText() +
+                "\r\n\r\n" + ratingMessage + " " + formattedRating);
     }
 
 }

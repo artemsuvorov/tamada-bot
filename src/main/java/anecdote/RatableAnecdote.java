@@ -38,11 +38,11 @@ public class RatableAnecdote extends Anecdote implements IRatableAnecdote {
      * @param newRating оценка, которая будет присвоена анекдоту.
      */
     @Override
-    public void setRating(Rating newRating) {
+    public void setRating(long senderId, Rating newRating) {
         if (rating == newRating) return;
         var oldRating = rating;
         rating = newRating;
-        RatingActionEvent event = new RatingActionEvent(this, oldRating, newRating);
+        RatingActionEvent event = new RatingActionEvent(senderId, this, oldRating, newRating);
         ratingChanged.invoke(this, event);
     }
 

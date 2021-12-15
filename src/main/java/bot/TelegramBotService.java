@@ -89,7 +89,7 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
         var currentBot = bots.getOrAdd(chatId);
 
         var input = update.getMessage().getText();
-        if (!currentBot.isActive() && !input.contains("старт")) // todo: use inputpredicate
+        if (input == null || !currentBot.getState().isActive() && !input.contains("старт")) // todo: use inputpredicate
             return;
 
         var text = currentBot.executeCommand(input);

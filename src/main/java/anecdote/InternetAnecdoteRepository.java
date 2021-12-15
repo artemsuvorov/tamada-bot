@@ -3,6 +3,7 @@ package anecdote;
 import com.google.gson.GsonBuilder;
 import event.ActionEvent;
 import event.ActionListener;
+import event.RatingActionEvent;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -44,7 +45,7 @@ public class InternetAnecdoteRepository extends RandomRatableUnfinishedAnecdoteR
         this.id = id;
         var requestConfig = RequestConfig.custom().setConnectTimeout(requestTimeout).build();
         client = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
-        commonAnecdotes.AnecdoteAddedEvent.addListener(this);
+        commonAnecdotes.AnecdoteAddedEvent.addListener(this); // todo: simplify event infrastructure
     }
 
     public InternetAnecdoteRepository(long id) {
@@ -86,15 +87,16 @@ public class InternetAnecdoteRepository extends RandomRatableUnfinishedAnecdoteR
         }
     }
 
-    /*// todo: add javadoc
+    // todo: add javadoc
     @Override
     public void actionPerformed(ActionEvent event) {
-        // todo: simplify event infrastructure
-        *//*if (event instanceof AnecdoteActionEvent anecdoteEvent)
-            addCommonAnecdote(anecdoteEvent.getAnecdote());
-        else if (event instanceof AnecdotesActionEvent anecdotesEvent)
-            addCommonAnecdotes(anecdotesEvent.getAnecdotes());*//*
-    }*/
+        if (event instanceof RatingActionEvent ratingEvent) {
+            Anecdote anecdote = ratingEvent.getAnecdote();
+            if (anecdote instanceof UnfinishedAnecdote && id != ratingEvent.getSenderId())
+                return;
+            onAnecdoteRatingChanged(anecdote, ratingEvent.getOldRating(), ratingEvent.getNewRating());
+        }
+    }
 
     public void pullCommonAnecdotes() {
         ArrayList<Anecdote> common = commonAnecdotes.getAnecdotes();

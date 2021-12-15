@@ -31,7 +31,12 @@ public class Anecdote implements IAnecdote {
         return getText();
     }
 
-    // todo: add javadoc
+    /**
+     * Указывает, равны ли этот анекдот и переданный объект.
+     * Анекдоты равны тогда, когда равны их тексты.
+     * @param other объект, который подлежит сравнению с этим анекдотом.
+     * @return true, если анекдоты равны, иначе false.
+     */
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
@@ -40,7 +45,10 @@ public class Anecdote implements IAnecdote {
         return Objects.equals(text, anecdote.text);
     }
 
-    // todo: add javadoc
+    /**
+     * Возвращает хэш-код анекдота.
+     * @return Хэш-код анекдота.
+     */
     @Override
     public int hashCode() {
         return Objects.hash(text);

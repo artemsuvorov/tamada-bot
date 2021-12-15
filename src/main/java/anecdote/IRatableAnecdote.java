@@ -2,6 +2,7 @@ package anecdote;
 
 import event.ActionListener;
 
+// todo: remove the interface
 /**
  * Определяет интерфейс анекдота, который может быть оценен.
  */
@@ -17,7 +18,7 @@ public interface IRatableAnecdote extends IAnecdote {
      * Когда переопределен, присваивает указанную оценку анекдоту.
      * @param rating оценка, которая будет присвоена анекдоту.
      */
-    void setRating(Rating rating);
+    void setRating(long senderId, Rating rating);
 
     /**
      * Когда переопределен, подписывает указанный объект на прослушивание изменений оценки этого анекдота.

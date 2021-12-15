@@ -13,18 +13,18 @@ public class UnfinishedAnecdote extends RatableAnecdote {
     private long authorId;
     private String ending;
 
-    public UnfinishedAnecdote(String anecdote, Rating rating, String ending) {
-        this(anecdote, rating, 0, ending);
-    }
+    private final TotalRating totalRating;
 
-    public UnfinishedAnecdote(String anecdote, Rating rating, long authorId, String ending) {
+    public UnfinishedAnecdote(String anecdote, Rating rating,
+        TotalRating totalRating, long authorId, String ending) {
         super(anecdote, rating);
+        this.totalRating = totalRating;
         this.authorId = authorId;
         this.ending = ending;
     }
 
     public UnfinishedAnecdote(String anecdote) {
-        this(anecdote, Rating.None, 0, null);
+        this(anecdote, Rating.None, new TotalRating(), 0, null);
     }
 
     /**
@@ -56,6 +56,18 @@ public class UnfinishedAnecdote extends RatableAnecdote {
     public void setEnding(long authorId, String ending) {
         this.authorId = authorId;
         this.ending = ending;
+    }
+
+    // todo: add javadoc
+    public double getTotalRating() {
+        return totalRating.getAverageRating();
+    }
+
+    // todo: add javadoc
+    @Override
+    public void setRating(long senderId, Rating rating) {
+        super.setRating(senderId, rating);
+        totalRating.addUserRating(rating);
     }
 
     public String getTextWithoutEnding() {
