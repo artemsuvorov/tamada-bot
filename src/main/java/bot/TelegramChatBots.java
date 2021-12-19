@@ -1,5 +1,8 @@
 package bot;
 
+import anecdote.IRatableAnecdoteRepository;
+import anecdote.InternetAnecdoteRepository;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -44,7 +47,8 @@ public class TelegramChatBots {
      */
     public IAnecdoteBot initNewBot(long chatId) {
         var config = BotConfigRepository.getDefaultConfig();
-        var newBot = new AnecdoteBot(chatId, config, dump);
+        var repo = new InternetAnecdoteRepository(chatId);
+        var newBot = new AnecdoteBot(chatId, config, repo, dump);
         bots.put(chatId, newBot);
         return newBot;
     }
@@ -55,8 +59,11 @@ public class TelegramChatBots {
      * к себе все недостающие анекдоты из списка анекдотов, общих для всех пользователей.
      */
     public void syncCommonAnecdotesForAllRepos() {
-        for (IAnecdoteBot bot : bots.values())
-            bot.getAnecdoteRepository().pullCommonAnecdotes();
+        for (IAnecdoteBot bot : bots.values()) {
+            IRatableAnecdoteRepository repository = bot.getAnecdoteRepository();
+            if (repository instanceof InternetAnecdoteRepository internetAnecdoteRepository)
+                internetAnecdoteRepository.pullCommonAnecdotes();
+        }
     }
 
 }

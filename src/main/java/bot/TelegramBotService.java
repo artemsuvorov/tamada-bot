@@ -35,6 +35,8 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
     public TelegramBotService() {
         serializer = new JsonChatBotsSerializer();
         bots = serializer.deserializeAll();
+        serializer.deserializeCommonAnecdotes();
+        bots.syncCommonAnecdotesForAllRepos();
         markups = new CommandButtonMarkups();
     }
 

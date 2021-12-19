@@ -31,10 +31,16 @@ public interface IAnecdoteBot {
     BotState getState();
 
     /**
-     * Возвращает репозиторий анекдотов бота.
+     * Когда переопределен, возвращает репозиторий анекдотов бота.
      * @return репозиторий анекдотов бота.
      */
-    InternetAnecdoteRepository getAnecdoteRepository();
+    IRatableAnecdoteRepository getAnecdoteRepository();
+
+    /**
+     * Когда переопределен, устанавливает боту указанный репозиторий анекдотов.
+     * @param repository репозиторий анекдотов, который будет установлен боту.
+     */
+    void setAnecdoteRepository(IRatableAnecdoteRepository repository);
 
     /**
      * Когда переопределен, сбрасывает текущее состояние бота к стандартному.
@@ -109,17 +115,4 @@ public interface IAnecdoteBot {
      */
     String executeCommand(String input);
 
-    /**
-     * Когда переопределен, сереализует этого бота в строку String.
-     * @return Строку String, содержащую данные сериализованного бота.
-     */
-    String serialize();
-
-    /**
-     * Когда переопределен, десереализует бота и перезаписывает поля этого бота
-     * новыми данными из указанных данных, переданных в виде строки String.
-     * @param data Строка, содержащая сериализованного бота, чьи данные будут
-     *             десериализованы и присвоены этому боту.
-     */
-    void deserialize(String data);
 }
