@@ -16,7 +16,7 @@ public final class AnecdoteBot implements IAnecdoteBot {
     private final long id;
     private String name;
 
-    private InternetAnecdoteRepository anecdoteRepository; // todo: make repo outside
+    private IRatableAnecdoteRepository anecdoteRepository;
 
     private CommandStorage commands;
     private final PrintStream out;
@@ -25,13 +25,13 @@ public final class AnecdoteBot implements IAnecdoteBot {
     private Anecdote lastAnecdote;
 
     public AnecdoteBot(BotConfiguration config, PrintStream out) {
-        this(0, config, out);
+        this(0, config, new InternetAnecdoteRepository(0), out);
     }
 
-    public AnecdoteBot(long id, BotConfiguration config, PrintStream out) {
+    public AnecdoteBot(long id, BotConfiguration config, IRatableAnecdoteRepository repository, PrintStream out) {
         this.id = id;
         this.name = config.BotName;
-        anecdoteRepository = new InternetAnecdoteRepository(this.id);
+        this.anecdoteRepository = repository;
 
         this.out = out;
         this.commands = new CommandStorage(this, config, this.out);
@@ -72,8 +72,17 @@ public final class AnecdoteBot implements IAnecdoteBot {
      * @return репозиторий анекдотов бота.
      */
     @Override
-    public InternetAnecdoteRepository getAnecdoteRepository() {
+    public IRatableAnecdoteRepository getAnecdoteRepository() {
         return anecdoteRepository;
+    }
+
+    /**
+     * Устанавливает боту указанный репозиторий анекдотов.
+     * @param repository репозиторий анекдотов, который будет установлен боту.
+     */
+    @Override
+    public void setAnecdoteRepository(IRatableAnecdoteRepository repository) {
+        anecdoteRepository = repository;
     }
 
     /**
@@ -215,30 +224,6 @@ public final class AnecdoteBot implements IAnecdoteBot {
         if (command == null) command = commands.getNotUnderstandCommand();
 
         return command.execute(new UserInput(input));
-    }
-
-    /**
-     * Сереализует этого бота, сохраняя его данные в формате Json в строку String.
-     * Подлежащие сериализации данные бота - это содержание его репозитория анекдотов.
-     *
-     * @return Строку String, содержащую данные сериализованного бота в формате Json.
-     */
-    @Override
-    public String serialize() {
-        return anecdoteRepository.serialize();
-    }
-
-    /**
-     * Десереализует бота и перезаписывает поля этого бота
-     * новыми данными из указанных данных, переданных в виде строки String.
-     * Подлежащие десериализации данные бота - это содержание его репозитория анекдотов.
-     *
-     * @param json Строка, содержащая сериализованного бота, чьи данные будут
-     *             десериализованы и присвоены этому боту.
-     */
-    @Override
-    public void deserialize(String json) {
-        anecdoteRepository = anecdoteRepository.deserialize(json);
     }
 
 }

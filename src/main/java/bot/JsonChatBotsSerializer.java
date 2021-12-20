@@ -1,6 +1,8 @@
 package bot;
 
 import anecdote.CommonAnecdoteList;
+import anecdote.IRatableAnecdoteRepository;
+import anecdote.InternetAnecdoteRepository;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -29,8 +31,11 @@ public class JsonChatBotsSerializer {
      */
     public void serializeBot(Long chatId, IAnecdoteBot bot) {
         String filename = chatId.toString() + "." + extension;
-        String json = bot.serialize();
-        writeFile(filename, json);
+        IRatableAnecdoteRepository repository = bot.getAnecdoteRepository();
+        if (repository instanceof InternetAnecdoteRepository internetAnecdoteRepository) {
+            String json = internetAnecdoteRepository.serialize();
+            writeFile(filename, json);
+        }
     }
 
     /**
@@ -49,7 +54,11 @@ public class JsonChatBotsSerializer {
             }
             IAnecdoteBot bot = bots.initNewBot(chatId);
             String json = readFile(file.toPath());
-            bot.deserialize(json);
+            IRatableAnecdoteRepository repository = bot.getAnecdoteRepository();
+            if (repository instanceof InternetAnecdoteRepository internetAnecdoteRepository) {
+                InternetAnecdoteRepository newRepository = internetAnecdoteRepository.deserialize(json);
+                bot.setAnecdoteRepository(newRepository);
+            }
         }
         return bots;
     }

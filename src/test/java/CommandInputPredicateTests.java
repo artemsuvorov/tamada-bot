@@ -20,12 +20,21 @@ public class CommandInputPredicateTests {
     }
 
     @Test
+    public void testCaseSensitivePredicates() {
+        var input = "ABCD";
+        Assertions.assertTrue(new InputPredicate().caseSensitive().has("C").match(input));
+        Assertions.assertTrue(new InputPredicate().caseSensitive().has("D").match(input));
+        Assertions.assertFalse(new InputPredicate().caseSensitive().has("a").match(input));
+        Assertions.assertFalse(new InputPredicate().caseSensitive().has("b").match(input));
+    }
+
+    @Test
     public void testHasMethodIsCorrect() {
         var input = "ABCD";
         Assertions.assertTrue(new InputPredicate().has("A").match(input));
         Assertions.assertTrue(new InputPredicate().has("B").match(input));
-        Assertions.assertTrue(new InputPredicate().has("C").match(input));
-        Assertions.assertTrue(new InputPredicate().has("D").match(input));
+        Assertions.assertTrue(new InputPredicate().has("a").match(input));
+        Assertions.assertTrue(new InputPredicate().has("b").match(input));
         Assertions.assertTrue(new InputPredicate().not().has("E").match(input));
         Assertions.assertTrue(new InputPredicate().not().has("X").match(input));
     }

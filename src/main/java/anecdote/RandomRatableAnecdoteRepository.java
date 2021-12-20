@@ -21,6 +21,9 @@ public class RandomRatableAnecdoteRepository
         ArrayList<Anecdote> bannedAnecdotes, Map<Rating, ArrayList<Anecdote>> ratedAnecdotes) {
         super(anecdotes, toldAnecdotes, bannedAnecdotes);
         this.ratedAnecdotes = ratedAnecdotes;
+        listenRatableAnecdotes(this.anecdotes);
+        listenRatableAnecdotes(this.toldAnecdotes);
+        listenRatableAnecdotes(this.bannedAnecdotes);
     }
 
     public RandomRatableAnecdoteRepository(String[] anecdotes) {

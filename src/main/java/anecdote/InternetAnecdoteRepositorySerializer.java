@@ -46,7 +46,7 @@ public class InternetAnecdoteRepositorySerializer implements JsonSerializer<Inte
             jsonAnecdote.addProperty("text", anecdote.getText());
             if (anecdote instanceof RatableAnecdote ratableAnecdote)
                 jsonAnecdote.addProperty("rating", ratableAnecdote.getRating().name());
-            if (authorAnecdotes && anecdote instanceof UnfinishedAnecdote unfinishedAnecdote) {
+            if (anecdote instanceof UnfinishedAnecdote unfinishedAnecdote) {
                 jsonAnecdote.addProperty("text", unfinishedAnecdote.getTextWithoutEnding());
                 jsonAnecdote.addProperty("type", "UnfinishedAnecdote");
                 if (unfinishedAnecdote.hasEnding()) {
