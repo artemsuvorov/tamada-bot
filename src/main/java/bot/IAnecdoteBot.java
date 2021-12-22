@@ -4,6 +4,7 @@ import anecdote.Anecdote;
 import anecdote.IRatableAnecdoteRepository;
 import anecdote.InternetAnecdoteRepository;
 import anecdote.Rating;
+import commands.CommandResult;
 
 /**
  * Определяет интерфейс бота, который может
@@ -113,6 +114,6 @@ public interface IAnecdoteBot {
      * @param input строка ввода, которая содержит команду и передаваемые аргументы.
      * @return Строку, содержащая сообщение результата.
      */
-    String executeCommand(String input);
+    CommandResult executeCommand(String input);
 
 }

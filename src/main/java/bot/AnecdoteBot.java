@@ -1,6 +1,7 @@
 package bot;
 
 import anecdote.*;
+import commands.CommandResult;
 import commands.CommandStorage;
 import commands.InputPredicateStorage;
 import commands.UserInput;
@@ -210,20 +211,23 @@ public final class AnecdoteBot implements IAnecdoteBot {
     /**
      * Заставляет бота исполнить команду, содержащуюся в указанной строке ввода,
      * и возвращает строку, содержащую сообщение результата.
-     *
      * @param input строка ввода, которая содержит команду и передаваемые аргументы.
-     * @return Строку, содержащая сообщение результата.
+     * @return Результат исполнения команды {@link CommandResult},
+     * содержащий сообщение {@link String} и текущее состояние бота {@link BotState}.
      */
     @Override
-    public String executeCommand(String input) {
-        if (input == null)
-            return commands.getNotUnderstandCommand().execute(UserInput.Empty);
+    public CommandResult executeCommand(String input) {
+        if (input == null) {
+            String message = commands.getNotUnderstandCommand().execute(UserInput.Empty);
+            return new CommandResult(message, getState());
+        }
 
         var commandName = InputPredicateStorage.getCommandNameOrNull(input);
         var command = commands.getCommandOrNull(commandName);
         if (command == null) command = commands.getNotUnderstandCommand();
 
-        return command.execute(new UserInput(input));
+        String message = command.execute(new UserInput(input));
+        return new CommandResult(message, getState());
     }
 
 }
