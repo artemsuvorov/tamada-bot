@@ -44,7 +44,7 @@ public class InternetAnecdoteRepositoryDeserializer implements JsonDeserializer<
             String text = anecdote.get("text").getAsString();
             Rating rating = Rating.valueOf(anecdote.get("rating").getAsString());
             if (anecdote.has("type") && anecdote.get("type").getAsString().equals("UnfinishedAnecdote")) {
-                TotalRating totalRating = null;
+                TotalRating totalRating = new TotalRating();
                 long authorId = 0;
                 String ending = null;
                 if (anecdote.has("ending")) {

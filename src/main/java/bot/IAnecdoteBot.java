@@ -4,6 +4,7 @@ import anecdote.Anecdote;
 import anecdote.IRatableAnecdoteRepository;
 import anecdote.InternetAnecdoteRepository;
 import anecdote.Rating;
+import commands.CommandResult;
 
 /**
  * Определяет интерфейс бота, который может
@@ -31,10 +32,16 @@ public interface IAnecdoteBot {
     BotState getState();
 
     /**
-     * Возвращает репозиторий анекдотов бота.
+     * Когда переопределен, возвращает репозиторий анекдотов бота.
      * @return репозиторий анекдотов бота.
      */
-    InternetAnecdoteRepository getAnecdoteRepository();
+    IRatableAnecdoteRepository getAnecdoteRepository();
+
+    /**
+     * Когда переопределен, устанавливает боту указанный репозиторий анекдотов.
+     * @param repository репозиторий анекдотов, который будет установлен боту.
+     */
+    void setAnecdoteRepository(IRatableAnecdoteRepository repository);
 
     /**
      * Когда переопределен, сбрасывает текущее состояние бота к стандартному.
@@ -107,19 +114,6 @@ public interface IAnecdoteBot {
      * @param input строка ввода, которая содержит команду и передаваемые аргументы.
      * @return Строку, содержащая сообщение результата.
      */
-    String executeCommand(String input);
+    CommandResult executeCommand(String input);
 
-    /**
-     * Когда переопределен, сереализует этого бота в строку String.
-     * @return Строку String, содержащую данные сериализованного бота.
-     */
-    String serialize();
-
-    /**
-     * Когда переопределен, десереализует бота и перезаписывает поля этого бота
-     * новыми данными из указанных данных, переданных в виде строки String.
-     * @param data Строка, содержащая сериализованного бота, чьи данные будут
-     *             десериализованы и присвоены этому боту.
-     */
-    void deserialize(String data);
 }

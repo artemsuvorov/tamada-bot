@@ -1,8 +1,10 @@
 package bot;
 
-import commands.CommandButtonMarkups;
+import commands.CommandResult;
+import commands.buttonMarkup.CommandButtonMarkups;
 import commands.InputPredicate;
 import commands.InputPredicateStorage;
+import commands.buttonMarkup.IButtonMarkupFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -35,6 +37,8 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
     public TelegramBotService() {
         serializer = new JsonChatBotsSerializer();
         bots = serializer.deserializeAll();
+        serializer.deserializeCommonAnecdotes();
+        bots.syncCommonAnecdotesForAllRepos();
         markups = new CommandButtonMarkups();
     }
 
@@ -88,7 +92,7 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
         String input;
         Long chatId;
 
-        if (update.hasMessage()) {
+        if (update.hasMessage() && update.getMessage().getText() != null && !update.getMessage().getText().isBlank()) {
             input = update.getMessage().getText();
             chatId = update.getMessage().getChatId();
         } else if (update.hasCallbackQuery()) {
@@ -104,8 +108,8 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
         if (!currentBot.getState().isActive() && !startPredicate.match(input))
             return;
 
-        String text = currentBot.executeCommand(input);
-        sendBotMessage(chatId, input, text);
+        CommandResult result = currentBot.executeCommand(input);
+        sendBotMessage(chatId, input, result);
 
         serializer.serializeBot(chatId, currentBot);
         serializer.serializeCommonAnecdotes();
@@ -115,16 +119,17 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
     /**
      * Отправляет непустое сообщение в Telegram-чат по указанному id чата.
      * @param chatId id Telegram-чата, в который будет отправлено сообщение.
-     * @param text текст сообщения, которое будет оправлено в Telegram-чат.
+     * @param result результат команды CommandResult, выполненной ботом.
      */
-    private void sendBotMessage(Long chatId, String input, String text) {
-        if (text == null || text.isBlank())
+    private void sendBotMessage(Long chatId, String input, CommandResult result) {
+        if (result.Message == null || result.Message.isBlank())
             return;
         try {
-            InlineKeyboardMarkup markup = markups.getButtonMarkupOrNull(input);
-            SendMessage message = SendMessage.builder()
-                    .chatId(chatId.toString()).replyMarkup(markup).text(text).build();
-            execute(message);
+            IButtonMarkupFactory markup = markups.getButtonMarkupOrNull(input);
+            var message = SendMessage.builder().chatId(chatId.toString()).text(result.Message);
+            if (markup != null)
+                message = message.replyMarkup(markup.build(result));
+            execute(message.build());
         } catch (TelegramApiException ex) {
             ex.printStackTrace();
         }

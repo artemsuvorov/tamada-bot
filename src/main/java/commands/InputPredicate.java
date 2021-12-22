@@ -1,36 +1,41 @@
 package commands;
 
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Представляет собой обертку над предикатом от строки String,
  * который посредством реализации fluent interface позволяет
  * конструировать различные предикаты.
  */
-public class InputPredicate {
+public final class InputPredicate {
 
     private Predicate<String> inputFitsView;
     private PredicateComposition predicateComposition;
     private SubstringComposition substringComposition;
-    private boolean isNegated;
+    private boolean isNegated = false;
+    private boolean caseInsensitive = true;
 
     public InputPredicate() {
-        this(PredicateComposition.Or, SubstringComposition.Any, false, null);
+        this(PredicateComposition.Or, SubstringComposition.Any, false, true, null);
     }
 
-    private InputPredicate(PredicateComposition predicateComposition,
-        SubstringComposition substringComposition, boolean isNegated, Predicate<String> predicate) {
+    private InputPredicate(PredicateComposition predicateComposition, SubstringComposition substringComposition,
+                           boolean isNegated, boolean caseInsensitive, Predicate<String> predicate) {
         this.predicateComposition = predicateComposition;
         this.substringComposition = substringComposition;
         this.isNegated = isNegated;
+        this.caseInsensitive = caseInsensitive;
         this.inputFitsView = predicate;
     }
 
     /**
      * Проверяет, удовлетворяет ли указанная строка этому предикату.
      * Например, предикату new InputPredicate().has("при").and().has("вет")
-     * удовлетворяют строки "привет", "при-вет" и не удовлетворяет "пр-вет".
+     * удовлетворяют строки "ПРИВЕТ", "при-вет" и не удовлетворяет "пр-вет".
+     * По умолчанию, все предикаты не учитывают регистр строк.
      * Считается, что пустому предикату удовлетворяет любая строка.
      * @param input строка, которая будет проверена на соответствие предикату.
      * @return true, если указанная строка удовлетворяет этому предикату,
@@ -39,7 +44,34 @@ public class InputPredicate {
     public boolean match(String input) {
         if (inputFitsView == null)
             inputFitsView = (inp) -> true;
-        return inputFitsView.test(input.trim().toLowerCase(Locale.ROOT));
+        String trimmedInput = caseInsensitive ?
+                input.trim().toLowerCase(Locale.ROOT) : input.trim();
+        return inputFitsView.test(trimmedInput);
+    }
+
+    /**
+     * Добавляет в конец предиката требование НЕ учитывать регистр символов.
+     * По умолчанию, все предикаты не учитывают регистр строк.
+     * Например, предикату new InputPredicate().caseInsensitive().has("при").and().has("вет")
+     * удовлетворяют как строка "привет", так и строка "ПРИВЕТ".
+     * @return Обновленный предикат.
+     */
+    public InputPredicate caseInsensitive() {
+        return new InputPredicate(predicateComposition, substringComposition,
+                isNegated, true, inputFitsView);
+    }
+
+    /**
+     * Добавляет в конец предиката требование учитывать регистр символов.
+     * Например, предикату new InputPredicate().has("при").and().has("вет")
+     * удовлетворяют как строка "привет", так и строка "ПРИВЕТ".
+     * Предикату new InputPredicate().caseSensitive().has("при").and().has("вет")
+     * удовлетворяет только строка "привет" и не удовлетворяет строка "ПРИВЕТ".
+     * @return Обновленный предикат.
+     */
+    public InputPredicate caseSensitive() {
+        return new InputPredicate(predicateComposition, substringComposition,
+                isNegated, false, inputFitsView);
     }
 
     /**
@@ -120,9 +152,12 @@ public class InputPredicate {
             inputFitsView = getEmptyPredicate();
         if (substrings == null || substrings.length <= 0)
             return this;
-        var containsSubstrings = getContainsSubstringsPredicate(substrings);
+        String[] newSubstrings = caseInsensitive ?
+                Arrays.stream(substrings).map(s -> s.toLowerCase(Locale.ROOT)).toArray(String[]::new) : substrings;
+        var containsSubstrings = getContainsSubstringsPredicate(newSubstrings);
         inputFitsView = getCombinedPredicate(containsSubstrings);
-        return new InputPredicate(predicateComposition, SubstringComposition.Any, isNegated, inputFitsView);
+        return new InputPredicate(predicateComposition,
+                SubstringComposition.Any, isNegated, caseInsensitive, inputFitsView);
     }
 
     /**
