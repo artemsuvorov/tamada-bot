@@ -1,5 +1,7 @@
 package anecdote;
 
+import java.util.Objects;
+
 /**
  * Представляет собой класс анекдота с функцией получить содержание анекдота.
  */
@@ -29,4 +31,26 @@ public class Anecdote implements IAnecdote {
         return getText();
     }
 
+    /**
+     * Указывает, равны ли этот анекдот и переданный объект.
+     * Анекдоты равны тогда, когда равны их тексты.
+     * @param other объект, который подлежит сравнению с этим анекдотом.
+     * @return true, если анекдоты равны, иначе false.
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        Anecdote anecdote = (Anecdote) other;
+        return Objects.equals(text, anecdote.text);
+    }
+
+    /**
+     * Возвращает хэш-код анекдота.
+     * @return Хэш-код анекдота.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(text);
+    }
 }

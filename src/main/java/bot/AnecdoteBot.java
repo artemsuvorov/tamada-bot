@@ -1,11 +1,10 @@
 package bot;
 
 import anecdote.*;
-import com.google.gson.annotations.Expose;
+import commands.CommandResult;
 import commands.CommandStorage;
 import commands.InputPredicateStorage;
 import commands.UserInput;
-import commands.botCommands.BotCommand;
 
 import java.io.PrintStream;
 
@@ -15,12 +14,11 @@ import java.io.PrintStream;
  */
 public final class AnecdoteBot implements IAnecdoteBot {
 
-    @Expose
+    private final long id;
     private String name;
-    @Expose
-    private InternetAnecdoteRepository anecdoteRepository;
 
-    private final InputPredicateStorage predicates;
+    private IRatableAnecdoteRepository anecdoteRepository;
+
     private CommandStorage commands;
     private final PrintStream out;
 
@@ -28,16 +26,21 @@ public final class AnecdoteBot implements IAnecdoteBot {
     private Anecdote lastAnecdote;
 
     public AnecdoteBot(BotConfiguration config, PrintStream out) {
+        this(0, config, new InternetAnecdoteRepository(0), out);
+    }
+
+    public AnecdoteBot(long id, BotConfiguration config, IRatableAnecdoteRepository repository, PrintStream out) {
+        this.id = id;
         this.name = config.BotName;
-        anecdoteRepository = new InternetAnecdoteRepository();
+        this.anecdoteRepository = repository;
 
         this.out = out;
-        this.predicates = new InputPredicateStorage();
         this.commands = new CommandStorage(this, config, this.out);
     }
 
     /**
      * Возвращает имя бота.
+     *
      * @return Имя бота.
      */
     @Override
@@ -46,22 +49,41 @@ public final class AnecdoteBot implements IAnecdoteBot {
     }
 
     /**
-     * Указывает активен ли бот, т.е. ожидает ли он
-     * следующего ввода пользователем сообщения.
-     * @return true, если бот активен, иначе false.
+     * Возвращает уникальный id номер, проассоциированный с этим ботом.
+     * Этот id номер соответствует номеру текущего Telegram-чата.
+     * @return id номер, проассоциированный с этим ботом.
      */
     @Override
-    public boolean isActive() {
-        return state != BotState.Deactivated;
+    public long getAssociatedId() {
+        return id;
     }
 
     /**
      * Возвращает текущее состояние бота BotState.
+     *
      * @return Текущее состояние бота BotState.
      */
     @Override
     public BotState getState() {
         return state;
+    }
+
+    /**
+     * Возвращает репозиторий анекдотов бота.
+     * @return репозиторий анекдотов бота.
+     */
+    @Override
+    public IRatableAnecdoteRepository getAnecdoteRepository() {
+        return anecdoteRepository;
+    }
+
+    /**
+     * Устанавливает боту указанный репозиторий анекдотов.
+     * @param repository репозиторий анекдотов, который будет установлен боту.
+     */
+    @Override
+    public void setAnecdoteRepository(IRatableAnecdoteRepository repository) {
+        anecdoteRepository = repository;
     }
 
     /**
@@ -90,6 +112,7 @@ public final class AnecdoteBot implements IAnecdoteBot {
 
     /**
      * Устанавливает новую конфигурацию боту, которая содержит все его сообщения.
+     *
      * @param config новая конфигурация боту, которая содержит все его сообщения.
      */
     @Override
@@ -100,6 +123,7 @@ public final class AnecdoteBot implements IAnecdoteBot {
 
     /**
      * Указывает есть ли у бота еще анекдоты, которые могут быть рассказаны.
+     *
      * @return true, если у бота еще анекдоты, которые могут быть рассказаны,
      * иначе false.
      */
@@ -109,7 +133,17 @@ public final class AnecdoteBot implements IAnecdoteBot {
     }
 
     /**
+     * Возвращает последний рассказанный ботом анекдот.
+     * @return Последний рассказанный ботом анекдот.
+     */
+    @Override
+    public Anecdote getLastAnecdote() {
+        return lastAnecdote;
+    }
+
+    /**
      * Возвращает следующий анекдот.
+     *
      * @return Анекдот.
      */
     @Override
@@ -121,13 +155,18 @@ public final class AnecdoteBot implements IAnecdoteBot {
         state = BotState.AnecdoteTold;
         if (anecdote instanceof RatableAnecdote ratableAnecdote)
             lastAnecdote = ratableAnecdote;
-        if (anecdote instanceof UnfinishedAnecdote unfinished && !unfinished.hasEnding())
-            state = BotState.UnfinishedAnecdoteTold;
+        if (anecdote instanceof UnfinishedAnecdote unfinished) {
+            if (!unfinished.hasEnding())
+                state = BotState.UnfinishedAnecdoteTold;
+            else if (id == unfinished.getAuthorId())
+                state = BotState.UserAnecdoteTold;
+        }
         return anecdote;
     }
 
     /**
      * Возвращает массив анекдотов, которые имеют указанную оценку.
+     *
      * @return Массив анекдотов, которые имеют указанную оценку.
      */
     @Override
@@ -142,12 +181,13 @@ public final class AnecdoteBot implements IAnecdoteBot {
     /**
      * Присваивает указанную оценку последнему рассказанному анекдоту,
      * если таковой есть.
+     *
      * @param rating оценка, которая будет присвоена анекдоту.
      */
     @Override
     public void setRatingForLastAnecdote(Rating rating) {
-        if (state != BotState.AnecdoteTold) return;
-        ((RatableAnecdote)lastAnecdote).setRating(rating);
+        if (!state.wasAnecdoteTold()) return;
+        ((RatableAnecdote) lastAnecdote).setRating(id, rating);
         resetState();
     }
 
@@ -155,64 +195,39 @@ public final class AnecdoteBot implements IAnecdoteBot {
      * Когда переопределен, дописывает указанную концовку
      * последнему рассказанному анекдоту, если таковой есть,
      * и возвращает получившийся анекдот в виде строки.
+     *
      * @param ending концовка, которая будет дописана анекдоту.
      * @return Анекдот с новой концовкой в виде строки.
      */
     @Override
-    public String setEndingForLastAnecdote(String ending) {
-        if (state != BotState.UnfinishedAnecdoteTold)
-            return null;
-        ((UnfinishedAnecdote)lastAnecdote).setEnding(ending);
-        var resultingAnecdote = lastAnecdote.getText();
-        resetState();
-        state = BotState.AnecdoteTold;
-        return resultingAnecdote;
+    public void setEndingForLastAnecdote(String ending) {
+        if (!state.wasUnfinishedAnecdoteTold()) return;
+        UnfinishedAnecdote unfinishedAnecdote = (UnfinishedAnecdote)lastAnecdote;
+        unfinishedAnecdote.setEnding(id, ending);
+        CommonAnecdoteList.get().add(unfinishedAnecdote);
+        state = BotState.UserAnecdoteTold;
     }
 
     /**
      * Заставляет бота исполнить команду, содержащуюся в указанной строке ввода,
      * и возвращает строку, содержащую сообщение результата.
      * @param input строка ввода, которая содержит команду и передаваемые аргументы.
-     * @return Строку, содержащая сообщение результата.
+     * @return Результат исполнения команды {@link CommandResult},
+     * содержащий сообщение {@link String} и текущее состояние бота {@link BotState}.
      */
     @Override
-    public String executeCommand(String input) {
-        if (input == null)
-            return  commands.getNotUnderstandCommand().execute(UserInput.Empty);
+    public CommandResult executeCommand(String input) {
+        if (input == null) {
+            String message = commands.getNotUnderstandCommand().execute(UserInput.Empty);
+            return new CommandResult(message, getState());
+        }
 
-        var commandName = predicates.getCommandNameOrNull(input);
+        var commandName = InputPredicateStorage.getCommandNameOrNull(input);
         var command = commands.getCommandOrNull(commandName);
         if (command == null) command = commands.getNotUnderstandCommand();
 
-        return command.execute(new UserInput(input));
-    }
-
-    /**
-     * Сереализует этого бота, сохраняя его данные в формате Json в строку String.
-     * Подлежащие сериализации данные бота - это содержание его репозитория анекдотов.
-     * @return Строку String, содержащую данные сериализованного бота в формате Json.
-     */
-    @Override
-    public String serialize() {
-        return anecdoteRepository.serialize();
-    }
-
-    /**
-     * Десереализует бота и перезаписывает поля этого бота
-     * новыми данными из указанных данных, переданных в виде строки String.
-     * Подлежащие десериализации данные бота - это содержание его репозитория анекдотов.
-     * @param json Строка, содержащая сериализованного бота, чьи данные будут
-     *             десериализованы и присвоены этому боту.
-     */
-    @Override
-    public void deserialize(String json) {
-        anecdoteRepository = anecdoteRepository.deserialize(json);
-    }
-
-    // todo: remove it later
-    @Override
-    public IRatableAnecdoteRepository getAnecdoteRepository() {
-        return anecdoteRepository;
+        String message = command.execute(new UserInput(input));
+        return new CommandResult(message, getState());
     }
 
 }

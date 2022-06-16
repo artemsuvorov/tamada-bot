@@ -16,12 +16,12 @@ public class StartConversationCommand extends BotCommand {
 
     @Override
     public String execute(UserInput input) {
-        if (!Bot.isActive() && !input.hasArguments()) {
+        if (!Bot.getState().isActive() && !input.hasArguments()) {
             Bot.activate();
             return printBotMessage(Config.ConversationStart);
         }
 
-        if (Bot.isActive() && !input.hasArguments())
+        if (Bot.getState().isActive() && !input.hasArguments())
             return printBotMessage(Config.OnAlreadyStarted);
 
         Bot.activate();

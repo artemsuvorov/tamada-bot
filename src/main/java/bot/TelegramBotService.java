@@ -1,9 +1,15 @@
 package bot;
 
+import commands.CommandResult;
+import commands.buttonMarkup.CommandButtonMarkups;
+import commands.InputPredicate;
+import commands.InputPredicateStorage;
+import commands.buttonMarkup.IButtonMarkupFactory;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
@@ -26,10 +32,14 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
 
     private final TelegramChatBots bots;
     private final JsonChatBotsSerializer serializer;
+    private final CommandButtonMarkups markups;
 
     public TelegramBotService() {
         serializer = new JsonChatBotsSerializer();
         bots = serializer.deserializeAll();
+        serializer.deserializeCommonAnecdotes();
+        bots.syncCommonAnecdotesForAllRepos();
+        markups = new CommandButtonMarkups();
     }
 
     /**
@@ -79,32 +89,47 @@ public class TelegramBotService extends TelegramLongPollingBot implements IBotSe
      */
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.getMessage() == null)
+        String input;
+        Long chatId;
+
+        if (update.hasMessage() && update.getMessage().getText() != null && !update.getMessage().getText().isBlank()) {
+            input = update.getMessage().getText();
+            chatId = update.getMessage().getChatId();
+        } else if (update.hasCallbackQuery()) {
+            input = update.getCallbackQuery().getData();
+            chatId = update.getCallbackQuery().getMessage().getChatId();
+        } else {
+            return;
+        }
+
+        IAnecdoteBot currentBot = bots.getOrAdd(chatId);
+
+        InputPredicate startPredicate = InputPredicateStorage.StartCommandPredicate;
+        if (!currentBot.getState().isActive() && !startPredicate.match(input))
             return;
 
-        var chatId = update.getMessage().getChatId();
-        var currentBot = bots.getOrAdd(chatId);
-
-        var input = update.getMessage().getText();
-        if (!currentBot.isActive() && !input.contains("старт"))
-            return;
-
-        var text = currentBot.executeCommand(input);
-        sendBotMessage(chatId, text);
+        CommandResult result = currentBot.executeCommand(input);
+        sendBotMessage(chatId, input, result);
 
         serializer.serializeBot(chatId, currentBot);
+        serializer.serializeCommonAnecdotes();
+        bots.syncCommonAnecdotesForAllRepos();
     }
 
     /**
      * Отправляет непустое сообщение в Telegram-чат по указанному id чата.
      * @param chatId id Telegram-чата, в который будет отправлено сообщение.
-     * @param text текст сообщения, которое будет оправлено в Telegram-чат.
+     * @param result результат команды CommandResult, выполненной ботом.
      */
-    private void sendBotMessage(Long chatId, String text) {
-        if (text == null || text.isBlank())
+    private void sendBotMessage(Long chatId, String input, CommandResult result) {
+        if (result.Message == null || result.Message.isBlank())
             return;
         try {
-            execute(SendMessage.builder().chatId(chatId.toString()).text(text).build());
+            IButtonMarkupFactory markup = markups.getButtonMarkupOrNull(input);
+            var message = SendMessage.builder().chatId(chatId.toString()).text(result.Message);
+            if (markup != null)
+                message = message.replyMarkup(markup.build(result));
+            execute(message.build());
         } catch (TelegramApiException ex) {
             ex.printStackTrace();
         }

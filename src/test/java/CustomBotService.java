@@ -17,5 +17,4 @@ public class CustomBotService extends IOTamadaBotService {
         return Config;
     }
 
-
 }

@@ -2,7 +2,9 @@ package bot;
 
 import anecdote.Anecdote;
 import anecdote.IRatableAnecdoteRepository;
+import anecdote.InternetAnecdoteRepository;
 import anecdote.Rating;
+import commands.CommandResult;
 
 /**
  * Определяет интерфейс бота, который может
@@ -17,17 +19,29 @@ public interface IAnecdoteBot {
     String getName();
 
     /**
-     * Когда переопределен, указывает активен ли бот, т.е. ожидает ли он
-     * следующего ввода пользователем сообщения.
-     * @return true, если бот активен, иначе false.
+     * Когда переопределен, возвращает уникальный id номер, проассоциированный с этим ботом.
+     * Этот id номер соответствует номеру текущего Telegram-чата.
+     * @return id номер, проассоциированный с этим ботом.
      */
-    boolean isActive();
+    long getAssociatedId();
 
     /**
      * Когда переопределен, возвращает текущее состояние бота BotState.
      * @return Текущее состояние бота BotState.
      */
     BotState getState();
+
+    /**
+     * Когда переопределен, возвращает репозиторий анекдотов бота.
+     * @return репозиторий анекдотов бота.
+     */
+    IRatableAnecdoteRepository getAnecdoteRepository();
+
+    /**
+     * Когда переопределен, устанавливает боту указанный репозиторий анекдотов.
+     * @param repository репозиторий анекдотов, который будет установлен боту.
+     */
+    void setAnecdoteRepository(IRatableAnecdoteRepository repository);
 
     /**
      * Когда переопределен, сбрасывает текущее состояние бота к стандартному.
@@ -60,6 +74,12 @@ public interface IAnecdoteBot {
     boolean hasAnecdotes();
 
     /**
+     * Когда переопределен, возвращает последний рассказанный ботом анекдот.
+     * @return Последний рассказанный ботом анекдот.
+     */
+    Anecdote getLastAnecdote();
+
+    /**
      * Когда переопределен, возвращает следующий анекдот.
      * @return Анекдот.
      */
@@ -86,7 +106,7 @@ public interface IAnecdoteBot {
      * @param ending концовка, которая будет дописана анекдоту.
      * @return Анекдот с новой концовкой в виде строки.
      */
-    String setEndingForLastAnecdote(String ending);
+    void setEndingForLastAnecdote(String ending);
 
     /**
      * Когда переопределен, заставляет бота исполнить команду, содержащуюся
@@ -94,22 +114,6 @@ public interface IAnecdoteBot {
      * @param input строка ввода, которая содержит команду и передаваемые аргументы.
      * @return Строку, содержащая сообщение результата.
      */
-    String executeCommand(String input);
+    CommandResult executeCommand(String input);
 
-    /**
-     * Когда переопределен, сереализует этого бота в строку String.
-     * @return Строку String, содержащую данные сериализованного бота.
-     */
-    String serialize();
-
-    /**
-     * Когда переопределен, десереализует бота и перезаписывает поля этого бота
-     * новыми данными из указанных данных, переданных в виде строки String.
-     * @param data Строка, содержащая сериализованного бота, чьи данные будут
-     *             десериализованы и присвоены этому боту.
-     */
-    void deserialize(String data);
-
-    // todo: remove it later
-    IRatableAnecdoteRepository getAnecdoteRepository();
 }

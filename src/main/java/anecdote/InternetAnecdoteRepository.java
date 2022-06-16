@@ -1,6 +1,9 @@
 package anecdote;
 
 import com.google.gson.GsonBuilder;
+import event.ActionEvent;
+import event.ActionListener;
+import event.RatingActionEvent;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -22,25 +25,31 @@ import java.util.regex.Pattern;
  * Анекдоты берутся с некоторого сайта анекдотов, а также из локального хранилища.
  * Анекдоты такого репозитория поддерживают оценивание и добавление концовки.
  */
-public class InternetAnecdoteRepository extends RandomRatableUnfinishedAnecdoteRepository {
+public class InternetAnecdoteRepository extends RandomRatableUnfinishedAnecdoteRepository
+    implements ActionListener {
 
     private final String uri = "http://rzhunemogu.ru/Rand.aspx?CType=1";
-    private final int requestTimeout = 1500;
+    private final int requestTimeout = 1; // todo: set back to 1500
 
     private final CloseableHttpClient client;
 
-    private final AnecdoteRepositorySerializer serializer = new AnecdoteRepositorySerializer();
-    private final AnecdoteRepositoryDeserializer deserializer = new AnecdoteRepositoryDeserializer();
+    protected final long id;
+    private final CommonAnecdoteList commonAnecdotes = CommonAnecdoteList.get();
 
-    public InternetAnecdoteRepository(ArrayList<Anecdote> anecdotes, ArrayList<Anecdote> toldAnecdotes,
+    private final InternetAnecdoteRepositorySerializer serializer = new InternetAnecdoteRepositorySerializer();
+    private final InternetAnecdoteRepositoryDeserializer deserializer = new InternetAnecdoteRepositoryDeserializer();
+
+    public InternetAnecdoteRepository(long id, ArrayList<Anecdote> anecdotes, ArrayList<Anecdote> toldAnecdotes,
         ArrayList<Anecdote> bannedAnecdotes, Map<Rating, ArrayList<Anecdote>> ratedAnecdotes) {
         super(anecdotes, toldAnecdotes, bannedAnecdotes, ratedAnecdotes);
+        this.id = id;
         var requestConfig = RequestConfig.custom().setConnectTimeout(requestTimeout).build();
         client = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
     }
 
-    public InternetAnecdoteRepository() {
+    public InternetAnecdoteRepository(long id) {
         super(AnecdotesConfiguration.deserializeAnecdotesConfig());
+        this.id = id;
         var requestConfig = RequestConfig.custom().setConnectTimeout(requestTimeout).build();
         client = HttpClientBuilder.create().setDefaultRequestConfig(requestConfig).build();
     }
@@ -73,6 +82,35 @@ public class InternetAnecdoteRepository extends RandomRatableUnfinishedAnecdoteR
                 return super.getNextAnecdote();
         } catch (Exception ex) {
             return super.getNextAnecdote();
+        }
+    }
+
+    /**
+     * Этот метод вызывается, когда происходит событие, на которое был подписан этот класс.
+     * @param event ActionEvent объект, описывающий все свойства события.
+     */
+    @Override
+    public void actionPerformed(ActionEvent event) {
+        if (event instanceof RatingActionEvent ratingEvent) {
+            Anecdote anecdote = ratingEvent.getAnecdote();
+            if (anecdote instanceof UnfinishedAnecdote && id != ratingEvent.getSenderId())
+                return;
+            onAnecdoteRatingChanged(anecdote, ratingEvent.getOldRating(), ratingEvent.getNewRating());
+        }
+    }
+
+    /**
+     * Добавляет все недостающие анекдоты в этот репозиторий из списка анекдотов, общих для всех пользователей.
+     */
+    public void pullCommonAnecdotes() {
+        ArrayList<Anecdote> common = commonAnecdotes.getAnecdotes();
+        for (Anecdote anecdote : common) {
+            if (contains(anecdote)) continue;
+            if (anecdote instanceof UnfinishedAnecdote unfinishedAnecdote && unfinishedAnecdote.hasEnding()) {
+                // here, we intentionally copy the anecdote by its ref into user's repo
+                anecdotes.add(unfinishedAnecdote);
+                listenRatableAnecdote(unfinishedAnecdote);
+            }
         }
     }
 

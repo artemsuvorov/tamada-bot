@@ -17,7 +17,7 @@ public class OnLikeCommand extends BotCommand {
 
     @Override
     public String execute(UserInput input) {
-        if (Bot.getState() != BotState.AnecdoteTold)
+        if (!Bot.getState().wasAnecdoteTold())
             return printBotMessage(Config.OnNoAnecdotesToRateMessage);
 
         Bot.setRatingForLastAnecdote(Rating.Excellent);
